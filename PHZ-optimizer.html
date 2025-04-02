@@ -177,6 +177,7 @@
       let nextItemId = 0;
       const REQUIRED_ITEMS_FOR_LAYOUT = 7;
       const MAX_ITEMS_BEFORE_WARNING = 15;
+      const LOCAL_STORAGE_KEY = 'phzOptimizerItems';
 
       const BORDER_COLORS = {
         Black: '#000000',
@@ -295,6 +296,19 @@
         return `<g class="hexagon-item">${basePolygon}${borders}${textElement}</g>`;
       }
 
+      function saveItemsToLocalStorage() {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(itemList));
+      }
+
+      function loadItemsFromLocalStorage() {
+        const storedItems = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (storedItems) {
+          itemList = JSON.parse(storedItems);
+          // Find the highest ID in the loaded items and set nextItemId accordingly
+          nextItemId = itemList.reduce((maxId, item) => Math.max(maxId, item.id), -1) + 1;
+        }
+      }
+
       function updateItemListDisplay() {
         itemListDiv.innerHTML = '';
 
@@ -358,6 +372,7 @@
           listMessage.classList.add('text-gray-600');
           layoutMessage.textContent = '';
         }
+        saveItemsToLocalStorage(); // Save items after updating the display
       }
 
       function removeItem(itemId) {
@@ -564,6 +579,7 @@
 
       populateColorSelectors();
       updateCreatorPreview();
+      loadItemsFromLocalStorage(); // Load items on page load
       updateItemListDisplay();
       drawLayout([], 0);
     </script>
