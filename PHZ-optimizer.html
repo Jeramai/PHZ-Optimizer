@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hexagon Layout Optimizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
       :root {
         --color-black: #000000;
@@ -14,14 +17,16 @@
         --color-grey: #808080;
         --color-purple: #800080;
       }
-
+      body {
+        font-family: 'Inter', sans-serif;
+      }
       .hexagon-item polygon {
-        stroke: #4b5563;
-        stroke-width: 1;
-        fill: #f3f4f6;
+        stroke: #6b7280;
+        stroke-width: 0.5;
+        fill: #f9fafb;
       }
       .hexagon-item .border-line {
-        stroke-width: 5;
+        stroke-width: 4;
         stroke-linecap: round;
       }
       .hexagon-item text {
@@ -30,64 +35,79 @@
         text-anchor: middle;
         dominant-baseline: middle;
         font-weight: 500;
+        pointer-events: none;
       }
-
+      .connection-line {
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        opacity: 0.8;
+      }
       .item-preview-container {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 10px;
+        padding: 8px;
         border: 1px solid #e5e7eb;
         border-radius: 8px;
         background-color: white;
         position: relative;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       }
-
+      .item-preview-container:hover {
+        border-color: #9ca3af;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+      }
       .item-list-preview-svg {
-        width: 70px;
-        height: 70px;
-        margin-bottom: 6px;
+        width: 60px;
+        height: 60px;
+        margin-bottom: 4px;
       }
       .remove-item-btn {
         position: absolute;
-        top: -8px;
-        right: -8px;
+        top: -10px;
+        right: -10px;
         background-color: #ef4444;
         color: white;
         border: none;
         border-radius: 50%;
-        width: 22px;
-        height: 22px;
-        font-size: 14px;
-        line-height: 20px;
+        width: 24px;
+        height: 24px;
+        font-size: 16px;
+        line-height: 22px;
         text-align: center;
         cursor: pointer;
         font-weight: bold;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
         transition: background-color 0.2s ease, transform 0.1s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .remove-item-btn:hover {
         background-color: #dc2626;
         transform: scale(1.1);
       }
-
       #creator-preview-svg {
         width: 80px;
         height: 80px;
         border: 1px dashed #d1d5db;
         border-radius: 4px;
         background-color: #f9fafb;
+        display: block;
+        margin: 0 auto;
       }
-
       #layout-display-svg {
-        width: 350px;
-        height: 350px;
+        width: 100%;
+        max-width: 350px;
+        height: auto;
+        aspect-ratio: 1 / 1;
         border: 1px solid #d1d5db;
         border-radius: 8px;
         background-color: #f9fafb;
+        display: block;
+        margin: 0 auto;
       }
-
       select {
         padding: 6px 10px;
         border: 1px solid #d1d5db;
@@ -95,82 +115,127 @@
         background-color: white;
         cursor: pointer;
         min-width: 90px;
-        transition: border-color 0.2s ease;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        background-size: 1.25em 1.25em;
+        padding-right: 2.5rem;
       }
       select:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
       }
-
       button {
-        transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+        transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+        border-radius: 6px;
       }
       button:hover:not(:disabled) {
         filter: brightness(1.05);
         transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
       button:active:not(:disabled) {
         transform: translateY(0px);
         filter: brightness(0.95);
+        box-shadow: none;
       }
       button:disabled {
         cursor: not-allowed;
         opacity: 0.6;
       }
+      #add-item-btn {
+        background-color: #2563eb;
+        color: white;
+        font-weight: 500;
+        padding: 0.6rem 1.5rem;
+      }
+      #add-item-btn:hover:not(:disabled) {
+        background-color: #1d4ed8;
+      }
+      #find-layout-btn {
+        background-color: #16a34a;
+        color: white;
+        font-weight: 500;
+        padding: 0.6rem 1.5rem;
+      }
+      #find-layout-btn:hover:not(:disabled) {
+        background-color: #15803d;
+      }
+      #find-layout-btn:disabled {
+        background-color: #16a34a;
+      }
+      @media (max-width: 768px) {
+        #layout-display-svg {
+          max-width: 300px;
+        }
+        .color-selector-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        #item-list {
+          grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        }
+      }
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+        h2 {
+          font-size: 1.1rem;
+        }
+        button {
+          padding: 0.5rem 1rem;
+          font-size: 0.9rem;
+        }
+        #layout-display-svg {
+          max-width: 250px;
+        }
+        .color-selector-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        #item-list {
+          grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        }
+      }
     </style>
   </head>
   <body class="bg-gray-100 font-sans p-4 md:p-8">
-    <div class="container mx-auto bg-white p-6 rounded-lg shadow-xl">
-      <h1 class="text-3xl font-bold mb-8 text-center text-gray-800">Hexagon Layout Optimizer</h1>
-
-      <div class="flex flex-col lg:flex-row gap-3">
-        <div class="flex flex-col gap-3 lg:w-1/2">
-          <div class="p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
-            <h2 class="text-xl font-semibold mb-5 text-gray-700">Create New Hexagon Item</h2>
-            <div class="flex flex-col md:flex-row md:items-center gap-6">
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 flex-grow color-selector-grid"></div>
-              <div class="flex flex-col items-center mt-4 md:mt-0">
-                <label for="creator-preview-svg" class="block text-sm font-medium text-gray-500 mb-2">Preview</label>
+    <div class="container mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-xl max-w-6xl">
+      <h1 class="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-800">Hexagon Layout Optimizer</h1>
+      <div class="flex flex-col lg:flex-row gap-6">
+        <div class="flex flex-col gap-6 lg:w-1/2">
+          <div class="p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
+            <h2 class="text-lg sm:text-xl font-semibold mb-5 text-gray-700">Create New Hexagon Item</h2>
+            <div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-grow color-selector-grid"></div>
+              <div class="flex flex-col items-center mt-4 md:mt-0 flex-shrink-0">
+                <label class="block text-sm font-medium text-gray-500 mb-2">Preview</label>
                 <svg id="creator-preview-svg" viewBox="0 0 60 60"></svg>
               </div>
             </div>
-            <div class="text-center mt-6">
-              <button
-                id="add-item-btn"
-                class="bg-blue-600 text-white font-semibold px-8 py-2.5 rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
-              >
-                Add Item to List
-              </button>
-            </div>
+            <div class="text-center mt-6"><button id="add-item-btn">Add Item to List</button></div>
           </div>
-
-          <div class="p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
-            <h2 class="text-xl font-semibold mb-2 text-gray-700">Item List (<span id="item-count">0</span> items)</h2>
+          <div class="p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
+            <h2 class="text-lg sm:text-xl font-semibold mb-2 text-gray-700">Item List (<span id="item-count">0</span> items)</h2>
             <p id="list-message" class="text-sm text-gray-600 mb-4 min-h-[20px]">
-              Add items using the creator above. At least 7 items are needed to find a layout.
+              Add items using the creator above. At least 7 items are needed.
             </p>
-            <div id="item-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"></div>
+            <div id="item-list" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4"></div>
           </div>
         </div>
-
-        <div class="flex-grow">
-          <div class="mb-4 p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">Optimal Layout</h2>
-            <div class="flex flex-col md:flex-row items-center justify-center gap-6">
-              <div class="text-center mb-4 md:mb-0">
-                <button
-                  id="find-layout-btn"
-                  class="bg-green-600 text-white font-semibold px-8 py-2.5 rounded-md shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 disabled:opacity-50"
-                  disabled
-                >
-                  Find Optimal Layout
-                </button>
+        <div class="lg:w-1/2">
+          <div class="p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm h-full flex flex-col">
+            <h2 class="text-lg sm:text-xl font-semibold mb-4 text-gray-700 text-center">Optimal Layout</h2>
+            <div class="flex flex-col items-center justify-center gap-6 flex-grow">
+              <div class="w-full flex justify-center items-center mb-4">
+                <svg id="layout-display-svg" viewBox="0 0 200 200"></svg>
+              </div>
+              <div class="text-center">
+                <button id="find-layout-btn" disabled>Find Optimal Layout</button>
                 <p id="layout-message" class="text-sm text-gray-600 mt-3 min-h-[40px]"></p>
                 <p id="score-display" class="text-lg font-medium text-gray-800 mt-2"></p>
-              </div>
-              <div class="flex justify-center items-center">
-                <svg id="layout-display-svg" viewBox="0 0 200 200"></svg>
               </div>
             </div>
           </div>
@@ -182,8 +247,8 @@
       let itemList = [];
       let nextItemId = 0;
       const REQUIRED_ITEMS_FOR_LAYOUT = 7;
-      const MAX_ITEMS_BEFORE_WARNING = 15;
-      const LOCAL_STORAGE_KEY = 'phzOptimizerItems';
+      const MAX_ITEMS_BEFORE_WARNING = 12;
+      const LOCAL_STORAGE_KEY = 'phzOptimizerItems_v2';
 
       const BORDER_COLORS = {
         Black: '#000000',
@@ -200,7 +265,6 @@
       const addItemBtn = document.getElementById('add-item-btn');
       const itemListDiv = document.getElementById('item-list');
       const itemCountSpan = document.getElementById('item-count');
-
       const listMessage = document.getElementById('list-message');
       const findLayoutBtn = document.getElementById('find-layout-btn');
       const layoutMessage = document.getElementById('layout-message');
@@ -212,33 +276,42 @@
       const LIST_PREVIEW_HEX_SIZE = 20;
       const LAYOUT_GRID_RADIUS = HEX_SIZE * 2.2;
 
+      // ADJACENCY array defines touching borders based on standard layout:
+      // Pos 0: Center
+      // Pos 1: Top-Right (-30 deg)
+      // Pos 2: Right (30 deg)
+      // Pos 3: Bottom-Right (90 deg)
+      // Pos 4: Bottom-Left (150 deg)
+      // Pos 5: Left (210 deg)
+      // Pos 6: Top-Left (270 deg)
+      // Borders 0-5 clockwise from Top-Right edge.
       const ADJACENCY = [
-        [0, 0, 1, 3],
-        [0, 1, 2, 4],
-        [0, 2, 3, 5],
-        [0, 3, 4, 0],
-        [0, 4, 5, 1],
-        [0, 5, 6, 2],
-        [1, 1, 2, 5],
-        [2, 2, 3, 0],
-        [3, 3, 4, 1],
-        [4, 4, 5, 2],
-        [5, 5, 6, 3],
-        [6, 0, 1, 4]
+        [0, 0, 1, 3], // Center to Top-Right
+        [0, 1, 2, 4], // Center to Right
+        [0, 2, 3, 5], // Center to Bottom-Right
+        [0, 3, 4, 0], // Center to Bottom-Left
+        [0, 4, 5, 1], // Center to Left
+        [0, 5, 6, 2], // Center to Top-Left
+        [1, 2, 2, 5], // Top-Right to Right
+        [2, 3, 3, 0], // Right to Bottom-Right
+        [3, 4, 4, 1], // Bottom-Right to Bottom-Left
+        [4, 5, 5, 2], // Bottom-Left to Left
+        [5, 0, 6, 3], // Left to Top-Left
+        [6, 1, 1, 4] // Top-Left to Top-Right
       ];
 
       function populateColorSelectors() {
         colorSelectsContainer.innerHTML = '';
         for (let i = 0; i < 6; i++) {
           const wrapper = document.createElement('div');
-          wrapper.classList.add('text-center');
+          wrapper.classList.add('flex', 'flex-col', 'items-center');
           const label = document.createElement('label');
-          label.classList.add('block', 'text-sm', 'font-medium', 'text-gray-500', 'mb-1');
-          label.textContent = `Hex ${i}`;
+          label.classList.add('block', 'text-xs', 'font-medium', 'text-gray-500', 'mb-1');
+          label.textContent = `Border ${i}`;
           label.htmlFor = `color-select-${i}`;
           const select = document.createElement('select');
           select.id = `color-select-${i}`;
-          select.classList.add('color-select', 'w-full', 'rounded', 'border', 'border-gray-300', 'px-2', 'py-1', 'shadow-sm');
+          select.classList.add('color-select', 'w-full');
           select.addEventListener('change', updateCreatorPreview);
           Object.entries(BORDER_COLORS).forEach(([name, hex]) => {
             const option = document.createElement('option');
@@ -246,9 +319,7 @@
             option.textContent = name;
             option.style.backgroundColor = hex;
             option.style.color = isLightColor(hex) ? '#000000' : '#ffffff';
-            if (name === DEFAULT_COLORS[i]) {
-              option.selected = true;
-            }
+            if (name === DEFAULT_COLORS[i]) option.selected = true;
             select.appendChild(option);
           });
           wrapper.appendChild(label);
@@ -256,13 +327,11 @@
           colorSelectsContainer.appendChild(wrapper);
         }
       }
-
       function updateCreatorPreview() {
         const selects = colorSelectsContainer.querySelectorAll('.color-select');
         const currentColors = Array.from(selects).map((select) => select.value);
         creatorPreviewSvg.innerHTML = createHexagonSVG(currentColors, 30, 30, PREVIEW_HEX_SIZE);
       }
-
       function isLightColor(hexcolor) {
         if (!hexcolor || hexcolor.length < 7) return true;
         const r = parseInt(hexcolor.substring(1, 3), 16);
@@ -271,163 +340,210 @@
         const yiq = (r * 299 + g * 587 + b * 114) / 1000;
         return yiq >= 128;
       }
-
       function createHexagonSVG(colors, cx, cy, size, displayId) {
-        const points = Array.from({ length: 6 })
-          .map((_, i) => {
-            const angleRad = (Math.PI / 180) * (60 * i - 150);
-            const x = cx + size * Math.cos(angleRad);
-            const y = cy + size * Math.sin(angleRad);
-            return `${x},${y}`;
-          })
-          .join(' ');
-        let borders = '';
-        const borderPoints = Array.from({ length: 6 }).map((_, i) => {
-          const angleRad = (Math.PI / 180) * (60 * i - 150);
-          return { x: cx + size * Math.cos(angleRad), y: cy + size * Math.sin(angleRad) };
+        const vertices = Array.from({ length: 6 }).map((_, i) => {
+          const angleDeg = 60 * i - 150;
+          const angleRad = (Math.PI / 180) * angleDeg;
+          const x = cx + size * Math.cos(angleRad);
+          const y = cy + size * Math.sin(angleRad);
+          return { x, y };
         });
+        const points = vertices.map((p) => `${p.x},${p.y}`).join(' ');
+        const basePolygon = `<polygon points="${points}" fill="#f8f8f8" stroke="#aaa" stroke-width="0.5"/>`;
+        let borders = '';
         for (let i = 0; i < 6; i++) {
-          const p1 = borderPoints[i];
-          const p2 = borderPoints[(i + 1) % 6];
+          const p1 = vertices[i];
+          const p2 = vertices[(i + 1) % 6];
           const color = colors[i] || '#000000';
-          borders += `<line class="border-line" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" />`;
+          borders += `<line class="border-line" data-border-index="${i}" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" />`;
         }
         const textElement =
           displayId !== undefined
             ? `<text x="${cx}" y="${cy}" font-size="${
-                size * 0.4
-              }" fill="#333" text-anchor="middle" dominant-baseline="middle">${displayId}</text>`
+                size * 0.45
+              }" fill="#333" text-anchor="middle" dominant-baseline="middle" font-weight="bold">${displayId}</text>`
             : '';
-        const basePolygon = `<polygon points="${points}" fill="#f8f8f8" stroke="#aaa" stroke-width="0.5"/>`;
-        return `<g class="hexagon-item">${basePolygon}${borders}${textElement}</g>`;
+        const groupIdAttr = displayId !== undefined ? `data-item-id="${displayId}"` : '';
+        return `<g class="hexagon-item" ${groupIdAttr}>${basePolygon}${borders}${textElement}</g>`;
       }
-
       function saveItemsToLocalStorage() {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(itemList));
+        try {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(itemList));
+        } catch (e) {
+          console.error('Error saving items:', e);
+        }
       }
-
       function loadItemsFromLocalStorage() {
         const storedItems = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (storedItems) {
-          itemList = JSON.parse(storedItems);
-          // Find the highest ID in the loaded items and set nextItemId accordingly
-          nextItemId = itemList.reduce((maxId, item) => Math.max(maxId, item.id), -1) + 1;
+          try {
+            itemList = JSON.parse(storedItems);
+            itemList = itemList.filter(
+              (item) => item && Array.isArray(item.colors) && item.colors.length === 6 && typeof item.id === 'number'
+            );
+            nextItemId = itemList.reduce((maxId, item) => Math.max(maxId, item.id), -1) + 1;
+          } catch (e) {
+            console.error('Error loading items:', e);
+            itemList = [];
+            nextItemId = 0;
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+          }
         }
       }
-
       function updateItemListDisplay() {
         itemListDiv.innerHTML = '';
-
         itemList.forEach((item) => {
           const previewWrapper = document.createElement('div');
           previewWrapper.classList.add('item-preview-container');
           previewWrapper.dataset.itemId = item.id;
-
           const svgContainer = document.createElement('div');
           const previewSize = LIST_PREVIEW_HEX_SIZE;
-
           const viewBoxSize = previewSize * 2.5;
           const svgCenterX = viewBoxSize / 2;
           const svgCenterY = viewBoxSize / 2;
-
           const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
           svgElement.setAttribute('class', 'item-list-preview-svg');
           svgElement.setAttribute('viewBox', `0 0 ${viewBoxSize} ${viewBoxSize}`);
-          svgElement.setAttribute('width', `${viewBoxSize}`); // Explicit width
-          svgElement.setAttribute('height', `${viewBoxSize}`); // Explicit height
           svgElement.innerHTML = createHexagonSVG(item.colors, svgCenterX, svgCenterY, previewSize, item.id);
-
-          svgContainer.appendChild(svgElement); // Append the created SVG element
+          svgContainer.appendChild(svgElement);
           previewWrapper.appendChild(svgContainer);
-
-          const idText = document.createElement('span');
-          idText.textContent = `ID: ${item.id}`;
-          idText.classList.add('text-xs', 'text-gray-600', 'mt-1');
-          previewWrapper.appendChild(idText);
-
           const removeBtn = document.createElement('button');
           removeBtn.classList.add('remove-item-btn');
           removeBtn.innerHTML = '&times;';
-          removeBtn.title = 'Remove Item';
-          removeBtn.addEventListener('click', () => removeItem(item.id));
+          removeBtn.title = `Remove Item ${item.id}`;
+          removeBtn.setAttribute('aria-label', `Remove Item ${item.id}`);
+          removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeItem(item.id);
+          });
           previewWrapper.appendChild(removeBtn);
-
           itemListDiv.appendChild(previewWrapper);
         });
-
         itemCountSpan.textContent = itemList.length;
-
-        if (itemList.length >= REQUIRED_ITEMS_FOR_LAYOUT) {
+        updateUIAfterItemChange();
+        saveItemsToLocalStorage();
+      }
+      function updateUIAfterItemChange() {
+        const count = itemList.length;
+        const needed = REQUIRED_ITEMS_FOR_LAYOUT - count;
+        listMessage.classList.remove('text-green-600', 'text-red-600', 'text-orange-600', 'text-gray-600');
+        if (count >= REQUIRED_ITEMS_FOR_LAYOUT) {
           findLayoutBtn.disabled = false;
-          listMessage.textContent = `Ready to find layout using the best 7 items from the list (${itemList.length} available).`;
-          listMessage.classList.remove('text-gray-600', 'text-red-600');
+          listMessage.textContent = `Ready to find layout. Using the best 7 items from ${count} available.`;
           listMessage.classList.add('text-green-600');
-
-          if (itemList.length > MAX_ITEMS_BEFORE_WARNING) {
-            listMessage.textContent += ` (Note: Calculation might be slow with ${itemList.length} items.)`;
+          if (count > MAX_ITEMS_BEFORE_WARNING) {
+            listMessage.textContent += ` (Note: Calculation might be slow with ${count} items.)`;
             listMessage.classList.remove('text-green-600');
             listMessage.classList.add('text-orange-600');
           }
         } else {
           findLayoutBtn.disabled = true;
           scoreDisplay.textContent = '';
-          listMessage.textContent = `Need ${
-            REQUIRED_ITEMS_FOR_LAYOUT - itemList.length
-          } more item(s) to find a layout (minimum ${REQUIRED_ITEMS_FOR_LAYOUT} required).`;
-          listMessage.classList.remove('text-green-600', 'text-red-600', 'text-orange-600');
-          listMessage.classList.add('text-gray-600');
           layoutMessage.textContent = '';
+          listMessage.textContent = `Need ${needed} more item(s) (minimum ${REQUIRED_ITEMS_FOR_LAYOUT} required).`;
+          listMessage.classList.add('text-gray-600');
         }
-        saveItemsToLocalStorage(); // Save items after updating the display
       }
-
       function removeItem(itemId) {
         itemList = itemList.filter((item) => item.id !== itemId);
         updateItemListDisplay();
         layoutDisplaySvg.innerHTML = '';
         scoreDisplay.textContent = '';
-        layoutMessage.textContent = '';
+        layoutMessage.textContent = 'Item removed. Recalculate layout if needed.';
+        layoutMessage.className = 'text-sm text-gray-600 mt-3 min-h-[40px]';
+      }
+      function calculateBorderMidpoint(center, borderIndex, size) {
+        const angleRad1 = (Math.PI / 180) * (60 * borderIndex - 150);
+        const angleRad2 = (Math.PI / 180) * (60 * ((borderIndex + 1) % 6) - 150);
+        const x1 = center.x + size * Math.cos(angleRad1);
+        const y1 = center.y + size * Math.sin(angleRad1);
+        const x2 = center.x + size * Math.cos(angleRad2);
+        const y2 = center.y + size * Math.sin(angleRad2);
+        return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
       }
 
+      /**
+       * Draws the hexagon layout and connects matching borders with colored lines.
+       * @param {object[]} arrangement - Array of 7 item objects in their layout positions.
+       * @param {number} score - The score achieved by this arrangement.
+       */
       function drawLayout(arrangement, score) {
         layoutDisplaySvg.innerHTML = '';
-        if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) return;
+        if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) {
+          layoutDisplaySvg.innerHTML = '<text x="100" y="100" text-anchor="middle" fill="#9ca3af">No layout to display</text>';
+          return;
+        }
+
         const centerX = 100;
         const centerY = 100;
         const positions = [{ x: centerX, y: centerY }];
+
         for (let i = 0; i < 6; i++) {
-          const angleRad = (Math.PI / 180) * (60 * i + 0);
+          const angleDeg = 60 * i - 120;
+          const angleRad = (Math.PI / 180) * angleDeg;
           positions.push({
             x: centerX + LAYOUT_GRID_RADIUS * Math.cos(angleRad),
             y: centerY + LAYOUT_GRID_RADIUS * Math.sin(angleRad)
           });
         }
+
+        const hexagonGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        hexagonGroup.setAttribute('id', 'hexagon-group');
         arrangement.forEach((item, index) => {
           if (item) {
             const pos = positions[index];
-            layoutDisplaySvg.innerHTML += createHexagonSVG(item.colors, pos.x, pos.y, HEX_SIZE, item.id);
+            hexagonGroup.innerHTML += createHexagonSVG(item.colors, pos.x, pos.y, HEX_SIZE, item.id);
           }
         });
+        layoutDisplaySvg.appendChild(hexagonGroup);
+
+        const connectionGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        connectionGroup.setAttribute('id', 'connection-lines');
+        ADJACENCY.forEach(([posIndexA, borderA, posIndexB, borderB]) => {
+          const itemA = arrangement[posIndexA];
+          const itemB = arrangement[posIndexB];
+          if (itemA && itemB) {
+            const colorA = itemA.colors[borderA];
+            const colorB = itemB.colors[borderB];
+            if (colorA && colorB && colorA === colorB) {
+              const centerA = positions[posIndexA];
+              const centerB = positions[posIndexB];
+              const start = calculateBorderMidpoint(centerA, borderA, HEX_SIZE);
+              const end = calculateBorderMidpoint(centerB, borderB, HEX_SIZE);
+              const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+              line.setAttribute('class', 'connection-line');
+              line.setAttribute('x1', start.x);
+              line.setAttribute('y1', start.y);
+              line.setAttribute('x2', end.x);
+              line.setAttribute('y2', end.y);
+              line.setAttribute('stroke', colorA);
+              connectionGroup.appendChild(line);
+            }
+          }
+        });
+        layoutDisplaySvg.appendChild(connectionGroup);
+
         scoreDisplay.textContent = `Best Score: ${score}`;
       }
 
       function calculateScore(arrangement) {
         let score = 0;
         if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) return 0;
+
         ADJACENCY.forEach(([posA, borderA, posB, borderB]) => {
           const itemA = arrangement[posA];
           const itemB = arrangement[posB];
           if (itemA && itemB) {
-            const colorA = itemA.colors[borderA]?.toLowerCase();
-            const colorB = itemB.colors[borderB]?.toLowerCase();
+            const colorA = itemA.colors[borderA];
+            const colorB = itemB.colors[borderB];
             if (colorA && colorB && colorA === colorB) {
               score++;
             }
           }
         });
+
         return score;
       }
-
       function permute(arr) {
         if (arr.length === 0) return [[]];
         const first = arr[0];
@@ -436,158 +552,112 @@
         const allPerms = [];
         permsWithoutFirst.forEach((perm) => {
           for (let i = 0; i <= perm.length; i++) {
-            const permWithFirst = [...perm.slice(0, i), first, ...perm.slice(i)];
-            allPerms.push(permWithFirst);
+            allPerms.push([...perm.slice(0, i), first, ...perm.slice(i)]);
           }
         });
         return allPerms;
       }
-
-      function rotateColors(colors) {
-        if (!colors || colors.length !== 6) return colors;
-        return [colors[5], ...colors.slice(0, 5)];
-      }
-
       function combinations(arr, k) {
-        if (k < 0 || k > arr.length) {
-          return [];
-        }
-        if (k === 0) {
-          return [[]];
-        }
-        if (k === arr.length) {
-          return [arr];
+        if (k < 0 || k > arr.length) return [];
+        if (k === 0) return [[]];
+        if (k === arr.length) return [arr];
+        if (k > arr.length / 2) {
+          const excludeK = arr.length - k;
+          const excludeCombs = combinations(arr, excludeK);
+          const allItemsSet = new Set(arr);
+          return excludeCombs.map((excluded) => {
+            const includedSet = new Set(allItemsSet);
+            excluded.forEach((item) => includedSet.delete(item));
+            return Array.from(includedSet);
+          });
         }
         const first = arr[0];
         const rest = arr.slice(1);
-
         const combsWithFirst = combinations(rest, k - 1).map((comb) => [first, ...comb]);
-
         const combsWithoutFirst = combinations(rest, k);
         return [...combsWithFirst, ...combsWithoutFirst];
       }
-
       function findOptimalLayout() {
         if (itemList.length < REQUIRED_ITEMS_FOR_LAYOUT) {
-          layoutMessage.textContent = `Need at least ${REQUIRED_ITEMS_FOR_LAYOUT} items in the list.`;
-          layoutMessage.classList.add('text-red-500');
-          layoutMessage.classList.remove('text-green-600', 'text-gray-600', 'text-orange-600');
+          layoutMessage.textContent = `Need at least ${REQUIRED_ITEMS_FOR_LAYOUT} items.`;
+          layoutMessage.className = 'text-sm text-red-600 mt-3 min-h-[40px]';
           return;
         }
-
+        const numCombinations = combinations(itemList, REQUIRED_ITEMS_FOR_LAYOUT).length;
         if (itemList.length > MAX_ITEMS_BEFORE_WARNING) {
           if (
             !confirm(
-              `Warning: You have ${itemList.length} items. Checking all combinations might take a long time and may slow down your browser. Continue?`
+              `Warning: You have ${itemList.length} items. Checking all ${numCombinations} combinations might take significant time. Continue?`
             )
           ) {
-            layoutMessage.textContent = 'Calculation cancelled by user.';
-            layoutMessage.classList.remove('text-red-500', 'text-green-600');
-            layoutMessage.classList.add('text-gray-600');
+            layoutMessage.textContent = 'Calculation cancelled.';
+            layoutMessage.className = 'text-sm text-gray-600 mt-3 min-h-[40px]';
             return;
           }
         }
-
-        layoutMessage.textContent = 'Preparing calculation...';
-        layoutMessage.classList.remove('text-red-500', 'text-green-600', 'text-orange-600');
-        layoutMessage.classList.add('text-gray-600');
+        layoutMessage.textContent = 'Calculating optimal layout... Please wait.';
+        layoutMessage.className = 'text-sm text-blue-600 mt-3 min-h-[40px]';
         scoreDisplay.textContent = '';
         findLayoutBtn.disabled = true;
-
+        layoutDisplaySvg.innerHTML = '<text x="100" y="100" text-anchor="middle" fill="#9ca3af">Calculating...</text>';
         setTimeout(() => {
           let overallBestScore = -1;
           let overallBestArrangement = null;
-
-          layoutMessage.textContent = 'Generating combinations...';
+          let permutationsChecked = 0;
           const itemCombinations = combinations(itemList, REQUIRED_ITEMS_FOR_LAYOUT);
           const totalCombinations = itemCombinations.length;
-          layoutMessage.textContent = `Generated ${totalCombinations} combinations. Starting check...`;
-
-          itemCombinations.forEach((currentCombination, comboIndex) => {
-            if (comboIndex % 10 === 0 || comboIndex === totalCombinations - 1) {
-              layoutMessage.textContent = `Checking combination ${comboIndex + 1} of ${totalCombinations}...`;
-            }
-
-            let combinationBestScore = -1;
-            let combinationBestArrangementPermutation = null;
-            const itemsToPermute = currentCombination.map((item) => ({ ...item, colors: [...item.colors] }));
-            const itemPermutations = permute(itemsToPermute);
-
-            itemPermutations.forEach((currentPermutation) => {
-              const currentScore = calculateScore(currentPermutation);
-              if (currentScore > combinationBestScore) {
-                combinationBestScore = currentScore;
-                combinationBestArrangementPermutation = currentPermutation.map((item) => ({ ...item, colors: [...item.colors] }));
+          if (totalCombinations === 0) {
+            layoutMessage.textContent = 'No combinations possible.';
+            layoutMessage.className = 'text-sm text-red-600 mt-3 min-h-[40px]';
+            findLayoutBtn.disabled = itemList.length < REQUIRED_ITEMS_FOR_LAYOUT;
+            return;
+          }
+          layoutMessage.textContent = `Checking ${totalCombinations} combinations...`;
+          itemCombinations.forEach((currentCombination) => {
+            const itemPermutations = permute(currentCombination);
+            itemPermutations.forEach((permutation) => {
+              permutationsChecked++;
+              const currentArrangement = permutation;
+              const currentScore = calculateScore(currentArrangement);
+              if (currentScore > overallBestScore) {
+                overallBestScore = currentScore;
+                overallBestArrangement = currentArrangement;
               }
             });
-
-            if (!combinationBestArrangementPermutation) return;
-
-            let currentBestScoreForCombo = combinationBestScore;
-            let currentBestArrangementForCombo = combinationBestArrangementPermutation;
-            let improvementMade = true;
-
-            while (improvementMade) {
-              improvementMade = false;
-              for (let i = 0; i < REQUIRED_ITEMS_FOR_LAYOUT; i++) {
-                let originalColors = [...currentBestArrangementForCombo[i].colors];
-                let rotatedColors = [...originalColors];
-                for (let r = 1; r < 6; r++) {
-                  rotatedColors = rotateColors(rotatedColors);
-                  let tempArrangement = currentBestArrangementForCombo.map((item, idx) =>
-                    idx === i ? { ...item, colors: rotatedColors } : item
-                  );
-                  let tempScore = calculateScore(tempArrangement);
-
-                  if (tempScore > currentBestScoreForCombo) {
-                    currentBestScoreForCombo = tempScore;
-                    currentBestArrangementForCombo[i].colors = [...rotatedColors];
-                    improvementMade = true;
-                    break;
-                  }
-                }
-                if (improvementMade) break;
-              }
-            }
-
-            if (currentBestScoreForCombo > overallBestScore) {
-              overallBestScore = currentBestScoreForCombo;
-              overallBestArrangement = currentBestArrangementForCombo;
-            }
           });
-
           if (overallBestArrangement) {
             drawLayout(overallBestArrangement, overallBestScore);
-            layoutMessage.textContent = `Optimal layout found from ${totalCombinations} combinations!`;
-            layoutMessage.classList.remove('text-red-500', 'text-gray-600', 'text-orange-600');
-            layoutMessage.classList.add('text-green-600');
+            layoutMessage.textContent = `Optimal layout found! Score: ${overallBestScore}. (${permutationsChecked} permutations checked)`;
+            layoutMessage.className = 'text-sm text-green-600 mt-3 min-h-[40px]';
           } else {
-            layoutMessage.textContent = 'Could not find a valid layout.';
-            layoutMessage.classList.add('text-red-500');
-            layoutMessage.classList.remove('text-green-600', 'text-gray-600', 'text-orange-600');
-            layoutDisplaySvg.innerHTML = '';
+            layoutMessage.textContent = 'Could not determine an optimal layout (best score <= 0).';
+            layoutMessage.className = 'text-sm text-orange-600 mt-3 min-h-[40px]';
+            layoutDisplaySvg.innerHTML =
+              '<text x="100" y="100" text-anchor="middle" fill="#9ca3af">No matching layout found</text>';
+            scoreDisplay.textContent = 'Best Score: 0';
           }
-
           findLayoutBtn.disabled = itemList.length < REQUIRED_ITEMS_FOR_LAYOUT;
-        }, 100);
+        }, 50);
       }
 
+      // --- Event Listeners ---
       addItemBtn.addEventListener('click', () => {
         const selects = colorSelectsContainer.querySelectorAll('.color-select');
         const colors = Array.from(selects).map((select) => select.value);
-
         const newItem = { id: nextItemId++, colors: colors };
         itemList.push(newItem);
         updateItemListDisplay();
       });
-
       findLayoutBtn.addEventListener('click', findOptimalLayout);
 
-      populateColorSelectors();
-      updateCreatorPreview();
-      loadItemsFromLocalStorage(); // Load items on page load
-      updateItemListDisplay();
-      drawLayout([], 0);
+      // --- Initialization ---
+      document.addEventListener('DOMContentLoaded', () => {
+        populateColorSelectors();
+        loadItemsFromLocalStorage();
+        updateCreatorPreview();
+        updateItemListDisplay();
+        drawLayout(null, 0);
+      });
     </script>
   </body>
 </html>
