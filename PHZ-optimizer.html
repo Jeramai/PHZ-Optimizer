@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hexagon Layout Optimizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --color-black: #000000;
+        --color-red: #ff0000;
+        --color-orange: #ffa500;
+        --color-blue: #0000ff;
+        --color-grey: #808080;
+        --color-purple: #800080;
+      }
+
+      .hexagon-item polygon {
+        stroke: #4b5563;
+        stroke-width: 1;
+        fill: #f3f4f6;
+      }
+      .hexagon-item .border-line {
+        stroke-width: 5;
+        stroke-linecap: round;
+      }
+      .hexagon-item text {
+        font-size: 10px;
+        fill: #1f2937;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        font-weight: 500;
+      }
+
+      .item-preview-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background-color: white;
+        position: relative;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .item-list-preview-svg {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 6px;
+      }
+      .remove-item-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        font-size: 14px;
+        line-height: 20px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        transition: background-color 0.2s ease, transform 0.1s ease;
+      }
+      .remove-item-btn:hover {
+        background-color: #dc2626;
+        transform: scale(1.1);
+      }
+
+      #creator-preview-svg {
+        width: 80px;
+        height: 80px;
+        border: 1px dashed #d1d5db;
+        border-radius: 4px;
+        background-color: #f9fafb;
+      }
+
+      #layout-display-svg {
+        width: 350px;
+        height: 350px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        background-color: #f9fafb;
+      }
+
+      select {
+        padding: 6px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background-color: white;
+        cursor: pointer;
+        min-width: 90px;
+        transition: border-color 0.2s ease;
+      }
+      select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      }
+
+      button {
+        transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+      }
+      button:hover:not(:disabled) {
+        filter: brightness(1.05);
+        transform: translateY(-1px);
+      }
+      button:active:not(:disabled) {
+        transform: translateY(0px);
+        filter: brightness(0.95);
+      }
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans p-4 md:p-8">
+    <div class="container mx-auto max-w-4xl bg-white p-6 rounded-lg shadow-xl">
+      <h1 class="text-3xl font-bold mb-8 text-center text-gray-800">Hexagon Layout Optimizer</h1>
+
+      <div class="mb-8 p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
+        <h2 class="text-xl font-semibold mb-5 text-gray-700">Create New Hexagon Item</h2>
+        <div class="flex flex-col md:flex-row md:items-center gap-6">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 flex-grow color-selector-grid"></div>
+          <div class="flex flex-col items-center mt-4 md:mt-0">
+            <label for="creator-preview-svg" class="block text-sm font-medium text-gray-500 mb-2">Preview</label>
+            <svg id="creator-preview-svg" viewBox="0 0 60 60"></svg>
+          </div>
+        </div>
+        <div class="text-center mt-6">
+          <button
+            id="add-item-btn"
+            class="bg-blue-600 text-white font-semibold px-8 py-2.5 rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+          >
+            Add Item to List
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-8 p-5 border border-gray-200 rounded-lg shadow-sm">
+        <h2 class="text-xl font-semibold mb-2 text-gray-700">Item List (<span id="item-count">0</span> items)</h2>
+        <p id="list-message" class="text-sm text-gray-600 mb-4 min-h-[20px]">
+          Add items using the creator above. At least 7 items are needed to find a layout.
+        </p>
+        <div id="item-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"></div>
+      </div>
+
+      <div class="mb-4 p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
+        <h2 class="text-xl font-semibold mb-4 text-gray-700">Optimal Layout</h2>
+        <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+          <div class="text-center mb-4 md:mb-0">
+            <button
+              id="find-layout-btn"
+              class="bg-green-600 text-white font-semibold px-8 py-2.5 rounded-md shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 disabled:opacity-50"
+              disabled
+            >
+              Find Optimal Layout
+            </button>
+            <p id="layout-message" class="text-sm text-gray-600 mt-3 min-h-[40px]"></p>
+            <p id="score-display" class="text-lg font-medium text-gray-800 mt-2"></p>
+          </div>
+          <div class="flex justify-center items-center">
+            <svg id="layout-display-svg" viewBox="0 0 200 200"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let itemList = [];
+      let nextItemId = 0;
+      const REQUIRED_ITEMS_FOR_LAYOUT = 7;
+      const MAX_ITEMS_BEFORE_WARNING = 15;
+
+      const BORDER_COLORS = {
+        Black: '#000000',
+        Red: '#FF0000',
+        Orange: '#FFA500',
+        Blue: '#0000FF',
+        Grey: '#808080',
+        Purple: '#800080'
+      };
+      const DEFAULT_COLORS = ['Red', 'Orange', 'Blue', 'Grey', 'Purple', 'Black'];
+
+      const colorSelectsContainer = document.querySelector('.color-selector-grid');
+      const creatorPreviewSvg = document.getElementById('creator-preview-svg');
+      const addItemBtn = document.getElementById('add-item-btn');
+      const itemListDiv = document.getElementById('item-list');
+      const itemCountSpan = document.getElementById('item-count');
+
+      const listMessage = document.getElementById('list-message');
+      const findLayoutBtn = document.getElementById('find-layout-btn');
+      const layoutMessage = document.getElementById('layout-message');
+      const scoreDisplay = document.getElementById('score-display');
+      const layoutDisplaySvg = document.getElementById('layout-display-svg');
+
+      const HEX_SIZE = 25;
+      const PREVIEW_HEX_SIZE = 28;
+      const LIST_PREVIEW_HEX_SIZE = 20;
+      const LAYOUT_GRID_RADIUS = HEX_SIZE * 2.2;
+
+      const ADJACENCY = [
+        [0, 0, 1, 3],
+        [0, 1, 2, 4],
+        [0, 2, 3, 5],
+        [0, 3, 4, 0],
+        [0, 4, 5, 1],
+        [0, 5, 6, 2],
+        [1, 1, 2, 5],
+        [2, 2, 3, 0],
+        [3, 3, 4, 1],
+        [4, 4, 5, 2],
+        [5, 5, 6, 3],
+        [6, 0, 1, 4]
+      ];
+
+      function populateColorSelectors() {
+        colorSelectsContainer.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+          const wrapper = document.createElement('div');
+          wrapper.classList.add('text-center');
+          const label = document.createElement('label');
+          label.classList.add('block', 'text-sm', 'font-medium', 'text-gray-500', 'mb-1');
+          label.textContent = `Hex ${i}`;
+          label.htmlFor = `color-select-${i}`;
+          const select = document.createElement('select');
+          select.id = `color-select-${i}`;
+          select.classList.add('color-select', 'w-full', 'rounded', 'border', 'border-gray-300', 'px-2', 'py-1', 'shadow-sm');
+          select.addEventListener('change', updateCreatorPreview);
+          Object.entries(BORDER_COLORS).forEach(([name, hex]) => {
+            const option = document.createElement('option');
+            option.value = hex;
+            option.textContent = name;
+            option.style.backgroundColor = hex;
+            option.style.color = isLightColor(hex) ? '#000000' : '#ffffff';
+            if (name === DEFAULT_COLORS[i]) {
+              option.selected = true;
+            }
+            select.appendChild(option);
+          });
+          wrapper.appendChild(label);
+          wrapper.appendChild(select);
+          colorSelectsContainer.appendChild(wrapper);
+        }
+      }
+
+      function updateCreatorPreview() {
+        const selects = colorSelectsContainer.querySelectorAll('.color-select');
+        const currentColors = Array.from(selects).map((select) => select.value);
+        creatorPreviewSvg.innerHTML = createHexagonSVG(currentColors, 30, 30, PREVIEW_HEX_SIZE);
+      }
+
+      function isLightColor(hexcolor) {
+        if (!hexcolor || hexcolor.length < 7) return true;
+        const r = parseInt(hexcolor.substring(1, 3), 16);
+        const g = parseInt(hexcolor.substring(3, 5), 16);
+        const b = parseInt(hexcolor.substring(5, 7), 16);
+        const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+        return yiq >= 128;
+      }
+
+      function createHexagonSVG(colors, cx, cy, size, displayId) {
+        const points = Array.from({ length: 6 })
+          .map((_, i) => {
+            const angleRad = (Math.PI / 180) * (60 * i - 150);
+            const x = cx + size * Math.cos(angleRad);
+            const y = cy + size * Math.sin(angleRad);
+            return `${x},${y}`;
+          })
+          .join(' ');
+        let borders = '';
+        const borderPoints = Array.from({ length: 6 }).map((_, i) => {
+          const angleRad = (Math.PI / 180) * (60 * i - 150);
+          return { x: cx + size * Math.cos(angleRad), y: cy + size * Math.sin(angleRad) };
+        });
+        for (let i = 0; i < 6; i++) {
+          const p1 = borderPoints[i];
+          const p2 = borderPoints[(i + 1) % 6];
+          const color = colors[i] || '#000000';
+          borders += `<line class="border-line" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" />`;
+        }
+        const textElement =
+          displayId !== undefined
+            ? `<text x="${cx}" y="${cy}" font-size="${
+                size * 0.4
+              }" fill="#333" text-anchor="middle" dominant-baseline="middle">${displayId}</text>`
+            : '';
+        const basePolygon = `<polygon points="${points}" fill="#f8f8f8" stroke="#aaa" stroke-width="0.5"/>`;
+        return `<g class="hexagon-item">${basePolygon}${borders}${textElement}</g>`;
+      }
+
+      function updateItemListDisplay() {
+        itemListDiv.innerHTML = '';
+
+        itemList.forEach((item) => {
+          const previewWrapper = document.createElement('div');
+          previewWrapper.classList.add('item-preview-container');
+          previewWrapper.dataset.itemId = item.id;
+
+          const svgContainer = document.createElement('div');
+          const previewSize = LIST_PREVIEW_HEX_SIZE;
+
+          const viewBoxSize = previewSize * 2.5;
+          const svgCenterX = viewBoxSize / 2;
+          const svgCenterY = viewBoxSize / 2;
+
+          const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svgElement.setAttribute('class', 'item-list-preview-svg');
+          svgElement.setAttribute('viewBox', `0 0 ${viewBoxSize} ${viewBoxSize}`);
+          svgElement.setAttribute('width', `${viewBoxSize}`); // Explicit width
+          svgElement.setAttribute('height', `${viewBoxSize}`); // Explicit height
+          svgElement.innerHTML = createHexagonSVG(item.colors, svgCenterX, svgCenterY, previewSize, item.id);
+
+          svgContainer.appendChild(svgElement); // Append the created SVG element
+          previewWrapper.appendChild(svgContainer);
+
+          const idText = document.createElement('span');
+          idText.textContent = `ID: ${item.id}`;
+          idText.classList.add('text-xs', 'text-gray-600', 'mt-1');
+          previewWrapper.appendChild(idText);
+
+          const removeBtn = document.createElement('button');
+          removeBtn.classList.add('remove-item-btn');
+          removeBtn.innerHTML = '&times;';
+          removeBtn.title = 'Remove Item';
+          removeBtn.addEventListener('click', () => removeItem(item.id));
+          previewWrapper.appendChild(removeBtn);
+
+          itemListDiv.appendChild(previewWrapper);
+        });
+
+        itemCountSpan.textContent = itemList.length;
+
+        if (itemList.length >= REQUIRED_ITEMS_FOR_LAYOUT) {
+          findLayoutBtn.disabled = false;
+          listMessage.textContent = `Ready to find layout using the best 7 items from the list (${itemList.length} available).`;
+          listMessage.classList.remove('text-gray-600', 'text-red-600');
+          listMessage.classList.add('text-green-600');
+
+          if (itemList.length > MAX_ITEMS_BEFORE_WARNING) {
+            listMessage.textContent += ` (Note: Calculation might be slow with ${itemList.length} items.)`;
+            listMessage.classList.remove('text-green-600');
+            listMessage.classList.add('text-orange-600');
+          }
+        } else {
+          findLayoutBtn.disabled = true;
+          scoreDisplay.textContent = '';
+          listMessage.textContent = `Need ${
+            REQUIRED_ITEMS_FOR_LAYOUT - itemList.length
+          } more item(s) to find a layout (minimum ${REQUIRED_ITEMS_FOR_LAYOUT} required).`;
+          listMessage.classList.remove('text-green-600', 'text-red-600', 'text-orange-600');
+          listMessage.classList.add('text-gray-600');
+          layoutMessage.textContent = '';
+        }
+      }
+
+      function removeItem(itemId) {
+        itemList = itemList.filter((item) => item.id !== itemId);
+        updateItemListDisplay();
+        layoutDisplaySvg.innerHTML = '';
+        scoreDisplay.textContent = '';
+        layoutMessage.textContent = '';
+      }
+
+      function drawLayout(arrangement, score) {
+        layoutDisplaySvg.innerHTML = '';
+        if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) return;
+        const centerX = 100;
+        const centerY = 100;
+        const positions = [{ x: centerX, y: centerY }];
+        for (let i = 0; i < 6; i++) {
+          const angleRad = (Math.PI / 180) * (60 * i + 0);
+          positions.push({
+            x: centerX + LAYOUT_GRID_RADIUS * Math.cos(angleRad),
+            y: centerY + LAYOUT_GRID_RADIUS * Math.sin(angleRad)
+          });
+        }
+        arrangement.forEach((item, index) => {
+          if (item) {
+            const pos = positions[index];
+            layoutDisplaySvg.innerHTML += createHexagonSVG(item.colors, pos.x, pos.y, HEX_SIZE, item.id);
+          }
+        });
+        scoreDisplay.textContent = `Best Score: ${score}`;
+      }
+
+      function calculateScore(arrangement) {
+        let score = 0;
+        if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) return 0;
+        ADJACENCY.forEach(([posA, borderA, posB, borderB]) => {
+          const itemA = arrangement[posA];
+          const itemB = arrangement[posB];
+          if (itemA && itemB) {
+            const colorA = itemA.colors[borderA]?.toLowerCase();
+            const colorB = itemB.colors[borderB]?.toLowerCase();
+            if (colorA && colorB && colorA === colorB) {
+              score++;
+            }
+          }
+        });
+        return score;
+      }
+
+      function permute(arr) {
+        if (arr.length === 0) return [[]];
+        const first = arr[0];
+        const rest = arr.slice(1);
+        const permsWithoutFirst = permute(rest);
+        const allPerms = [];
+        permsWithoutFirst.forEach((perm) => {
+          for (let i = 0; i <= perm.length; i++) {
+            const permWithFirst = [...perm.slice(0, i), first, ...perm.slice(i)];
+            allPerms.push(permWithFirst);
+          }
+        });
+        return allPerms;
+      }
+
+      function rotateColors(colors) {
+        if (!colors || colors.length !== 6) return colors;
+        return [colors[5], ...colors.slice(0, 5)];
+      }
+
+      function combinations(arr, k) {
+        if (k < 0 || k > arr.length) {
+          return [];
+        }
+        if (k === 0) {
+          return [[]];
+        }
+        if (k === arr.length) {
+          return [arr];
+        }
+        const first = arr[0];
+        const rest = arr.slice(1);
+
+        const combsWithFirst = combinations(rest, k - 1).map((comb) => [first, ...comb]);
+
+        const combsWithoutFirst = combinations(rest, k);
+        return [...combsWithFirst, ...combsWithoutFirst];
+      }
+
+      function findOptimalLayout() {
+        if (itemList.length < REQUIRED_ITEMS_FOR_LAYOUT) {
+          layoutMessage.textContent = `Need at least ${REQUIRED_ITEMS_FOR_LAYOUT} items in the list.`;
+          layoutMessage.classList.add('text-red-500');
+          layoutMessage.classList.remove('text-green-600', 'text-gray-600', 'text-orange-600');
+          return;
+        }
+
+        if (itemList.length > MAX_ITEMS_BEFORE_WARNING) {
+          if (
+            !confirm(
+              `Warning: You have ${itemList.length} items. Checking all combinations might take a long time and may slow down your browser. Continue?`
+            )
+          ) {
+            layoutMessage.textContent = 'Calculation cancelled by user.';
+            layoutMessage.classList.remove('text-red-500', 'text-green-600');
+            layoutMessage.classList.add('text-gray-600');
+            return;
+          }
+        }
+
+        layoutMessage.textContent = 'Preparing calculation...';
+        layoutMessage.classList.remove('text-red-500', 'text-green-600', 'text-orange-600');
+        layoutMessage.classList.add('text-gray-600');
+        scoreDisplay.textContent = '';
+        findLayoutBtn.disabled = true;
+
+        setTimeout(() => {
+          let overallBestScore = -1;
+          let overallBestArrangement = null;
+
+          layoutMessage.textContent = 'Generating combinations...';
+          const itemCombinations = combinations(itemList, REQUIRED_ITEMS_FOR_LAYOUT);
+          const totalCombinations = itemCombinations.length;
+          layoutMessage.textContent = `Generated ${totalCombinations} combinations. Starting check...`;
+
+          itemCombinations.forEach((currentCombination, comboIndex) => {
+            if (comboIndex % 10 === 0 || comboIndex === totalCombinations - 1) {
+              layoutMessage.textContent = `Checking combination ${comboIndex + 1} of ${totalCombinations}...`;
+            }
+
+            let combinationBestScore = -1;
+            let combinationBestArrangementPermutation = null;
+            const itemsToPermute = currentCombination.map((item) => ({ ...item, colors: [...item.colors] }));
+            const itemPermutations = permute(itemsToPermute);
+
+            itemPermutations.forEach((currentPermutation) => {
+              const currentScore = calculateScore(currentPermutation);
+              if (currentScore > combinationBestScore) {
+                combinationBestScore = currentScore;
+                combinationBestArrangementPermutation = currentPermutation.map((item) => ({ ...item, colors: [...item.colors] }));
+              }
+            });
+
+            if (!combinationBestArrangementPermutation) return;
+
+            let currentBestScoreForCombo = combinationBestScore;
+            let currentBestArrangementForCombo = combinationBestArrangementPermutation;
+            let improvementMade = true;
+
+            while (improvementMade) {
+              improvementMade = false;
+              for (let i = 0; i < REQUIRED_ITEMS_FOR_LAYOUT; i++) {
+                let originalColors = [...currentBestArrangementForCombo[i].colors];
+                let rotatedColors = [...originalColors];
+                for (let r = 1; r < 6; r++) {
+                  rotatedColors = rotateColors(rotatedColors);
+                  let tempArrangement = currentBestArrangementForCombo.map((item, idx) =>
+                    idx === i ? { ...item, colors: rotatedColors } : item
+                  );
+                  let tempScore = calculateScore(tempArrangement);
+
+                  if (tempScore > currentBestScoreForCombo) {
+                    currentBestScoreForCombo = tempScore;
+                    currentBestArrangementForCombo[i].colors = [...rotatedColors];
+                    improvementMade = true;
+                    break;
+                  }
+                }
+                if (improvementMade) break;
+              }
+            }
+
+            if (currentBestScoreForCombo > overallBestScore) {
+              overallBestScore = currentBestScoreForCombo;
+              overallBestArrangement = currentBestArrangementForCombo;
+            }
+          });
+
+          if (overallBestArrangement) {
+            drawLayout(overallBestArrangement, overallBestScore);
+            layoutMessage.textContent = `Optimal layout found from ${totalCombinations} combinations!`;
+            layoutMessage.classList.remove('text-red-500', 'text-gray-600', 'text-orange-600');
+            layoutMessage.classList.add('text-green-600');
+          } else {
+            layoutMessage.textContent = 'Could not find a valid layout.';
+            layoutMessage.classList.add('text-red-500');
+            layoutMessage.classList.remove('text-green-600', 'text-gray-600', 'text-orange-600');
+            layoutDisplaySvg.innerHTML = '';
+          }
+
+          findLayoutBtn.disabled = itemList.length < REQUIRED_ITEMS_FOR_LAYOUT;
+        }, 100);
+      }
+
+      addItemBtn.addEventListener('click', () => {
+        const selects = colorSelectsContainer.querySelectorAll('.color-select');
+        const colors = Array.from(selects).map((select) => select.value);
+
+        const newItem = { id: nextItemId++, colors: colors };
+        itemList.push(newItem);
+        updateItemListDisplay();
+      });
+
+      findLayoutBtn.addEventListener('click', findOptimalLayout);
+
+      populateColorSelectors();
+      updateCreatorPreview();
+      updateItemListDisplay();
+      drawLayout([], 0);
+    </script>
+  </body>
+</html>
