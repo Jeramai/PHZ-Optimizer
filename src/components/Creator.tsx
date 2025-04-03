@@ -32,10 +32,10 @@ export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorPro
   }, [onAddItem, name, buffType, selectedColors]);
 
   return (
-    <div className='p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm'>
-      <h2 className='text-lg sm:text-xl font-semibold mb-5 text-gray-700'>Create New Item</h2>
+    <div className='p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm dark:border-gray-900 dark:bg-gray-800'>
+      <h2 className='text-lg sm:text-xl font-semibold mb-5 text-gray-700 dark:text-gray-300'>Create New Item</h2>
       <div className='flex flex-col mb-5'>
-        <label htmlFor='hexagonName' className='block text-xs font-medium text-gray-500 mb-1'>
+        <label htmlFor='hexagonName' className='block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1'>
           ToyZ Name
         </label>
         <div className='relative w-full'>
@@ -45,13 +45,15 @@ export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorPro
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder='Enter ToyZ name (optional)'
-            className='w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+            className='w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 
+              dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
           />
         </div>
       </div>
 
       <div className='flex flex-col mb-5'>
-        <label htmlFor='buffType' className='block text-xs font-medium text-gray-500 mb-1'>
+        <label htmlFor='buffType' className='block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1'>
           Buff Type
         </label>
         <div className='relative w-full'>
@@ -59,15 +61,22 @@ export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorPro
             id='buffType'
             value={buffType}
             onChange={(e) => setBuffType(e.target.value as BuffType)}
-            className='appearance-none w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer'
+            className='appearance-none w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 
+              dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer'
           >
             {Object.values(BuffType).map((type) => (
-              <option key={type} value={type} className='text-gray-900 bg-white hover:bg-gray-100'>
+              <option
+                key={type}
+                value={type}
+                className='text-gray-900 bg-white hover:bg-gray-100 dark:text-gray-200 dark:bg-gray-800 hover:dark:bg-gray-700'
+                style={{ color: '#1e2939' }}
+              >
                 {type}
               </option>
             ))}
           </select>
-          <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
+          <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300'>
             <svg className='h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'>
               <path
                 fillRule='evenodd'
@@ -116,7 +125,8 @@ const SelectBorderColor = memo(function SelectBorderColor({ color, index, handle
           id={`color-select-${index}`}
           value={color}
           onChange={(e) => handleColorChange(index, e.target.value as ColorOption)}
-          className='appearance-none w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer '
+          className='appearance-none w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 dark:text-gray-200
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer '
           style={{
             backgroundColor: BORDER_COLORS[color] + '20', // Adding 20% opacity
             borderColor: BORDER_COLORS[color]

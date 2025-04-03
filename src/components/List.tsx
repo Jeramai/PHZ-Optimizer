@@ -21,7 +21,8 @@ interface HexagonListProps {
   handleBuffTypeChange: (buffType: BuffType) => void;
 }
 
-const CONTAINER_CLASSES = 'p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm';
+const CONTAINER_CLASSES =
+  'p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-900 shadow-sm';
 const GRID_CLASSES = 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2';
 
 const RemoveButton = React.memo(({ id, onRemoveItem }: RemoveButtonProps) => (
@@ -48,20 +49,23 @@ const HexagonList = React.memo(({ items, onRemoveItem, selectedBuffTypes, handle
 
   return (
     <div id='item-list' className={CONTAINER_CLASSES}>
-      <h2 className='text-lg sm:text-xl font-semibold mb-2 text-gray-700'>Item List ({itemCount} items)</h2>
+      <h2 className='text-lg sm:text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200'>Item List ({itemCount} items)</h2>
       {itemCount < 7 ? (
-        <p id='list-message' className='text-sm text-gray-600 mb-4 min-h-[20px]'>
+        <p id='list-message' className='text-sm text-gray-600 dark:text-gray-300 mb-4 min-h-[20px]'>
           Add items using the creator above. At least 7 items are needed.
         </p>
       ) : itemCount > 13 ? (
-        <p id='list-message' className='text-sm text-gray-600 mb-4 min-h-[20px]'>
+        <p id='list-message' className='text-sm text-gray-600 dark:text-gray-300 mb-4 min-h-[20px]'>
           It will take longer to find the optimal layout.
         </p>
       ) : null}
 
-      <div className='flex flex-wrap justify-between gap-2 p-3 border border-gray-300 rounded-md bg-white shadow-sm mb-5'>
+      <div className='flex flex-wrap justify-between gap-2 p-3 border border-gray-300 rounded-md bg-white dark:border-gray-700 dark:bg-gray-700 shadow-sm mb-8'>
         {Object.entries(BuffType).map((value) => (
-          <label key={value[0]} className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded'>
+          <label
+            key={value[0]}
+            className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 hover:dark:bg-gray-800 px-2 py-1 rounded'
+          >
             <input
               type='checkbox'
               name={value[0]}
@@ -69,7 +73,7 @@ const HexagonList = React.memo(({ items, onRemoveItem, selectedBuffTypes, handle
               onChange={() => handleBuffTypeChange(value[1])}
               className='w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500 focus:ring-2'
             />
-            <span className='text-sm text-gray-700 select-none'>{value[1]}</span>
+            <span className='text-sm text-gray-700 dark:text-gray-200 select-none'>{value[1]}</span>
           </label>
         ))}
       </div>

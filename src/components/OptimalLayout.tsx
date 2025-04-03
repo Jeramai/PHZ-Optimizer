@@ -103,6 +103,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
         fill="#333" 
         text-anchor="middle" 
         dominant-baseline="middle"
+        class="fill-gray-900 dark:fill-gray-100"
         font-weight="bold">${truncatedText}</text>
     </g>`;
     },
@@ -121,7 +122,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
       if (displayId !== undefined) {
         svg += ' data-item-id="' + displayId + '"';
       }
-      svg += '><polygon points="' + points + '" fill="#f8f8f8" stroke="#aaa" stroke-width="0.5"/>';
+      svg += '><polygon points="' + points + '" class="fill-gray-200 dark:fill-gray-800"  stroke="#aaa" stroke-width="0.5"/>';
 
       // Add borders
       for (let i = 0; i < 6; i++) {
@@ -235,8 +236,11 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
   }, [currentArrangement, arrangements, drawLayout]);
 
   return (
-    <div id='optimalLayout' className='p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm h-full flex flex-col'>
-      <h2 className='text-lg sm:text-xl font-semibold mb-4 text-gray-700 text-center'>Optimal Layout</h2>
+    <div
+      id='optimalLayout'
+      className='p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-900 shadow-sm h-full flex flex-col'
+    >
+      <h2 className='text-lg sm:text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200 text-center'>Optimal Layout</h2>
 
       <div className='flex flex-col items-center justify-center gap-6 flex-grow'>
         <div className='relative w-full flex justify-center items-center'>
@@ -256,14 +260,14 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
         {!isLoading && arrangements?.length > 1 ? (
           <div className='flex gap-3'>
             <button
-              className='bg-gray-200 rounded-full text-gray-800 px-3 py-1 cursor-pointer disabled:opacity-25 disabled:cursor-default'
+              className='bg-gray-200 rounded-full text-gray-800 dark:bg-gray-600 dark:text-gray-200 px-3 py-1 cursor-pointer disabled:opacity-25 disabled:cursor-default'
               disabled={currentArrangement === 0}
               onClick={() => setCurrentArrangement((ca) => ca - 1)}
             >
               PREV
             </button>
             <button
-              className='bg-gray-200 rounded-full text-gray-800 px-3 py-1 cursor-pointer disabled:opacity-25 disabled:cursor-default'
+              className='bg-gray-200 rounded-full text-gray-800 dark:bg-gray-600 dark:text-gray-200 px-3 py-1 cursor-pointer disabled:opacity-25 disabled:cursor-default'
               disabled={currentArrangement === arrangements.length - 1}
               onClick={() => setCurrentArrangement((ca) => ca + 1)}
             >
@@ -271,17 +275,18 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
             </button>
           </div>
         ) : null}
+
         <div className='text-center'>
           <p
             id='layout-message'
             className={`text-sm mt-3 min-h-[40px] ${
               message.startsWith('Calculating')
-                ? 'text-blue-600'
+                ? 'text-blue-600 dark:text-blue-400'
                 : message.startsWith('Found')
-                ? 'text-green-600'
+                ? 'text-green-600 dark:text-green-400'
                 : message.startsWith('Need')
-                ? 'text-red-600'
-                : 'text-gray-600'
+                ? 'text-red-600 dark:text-red-400'
+                : 'text-gray-600 dark:text-gray-400'
             }`}
           >
             {message}

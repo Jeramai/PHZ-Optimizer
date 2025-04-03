@@ -59,6 +59,7 @@ export default function HexagonPreview({
         fill="#333" 
         text-anchor="middle" 
         dominant-baseline="middle"
+        class="fill-gray-900 dark:fill-gray-100"
         font-weight="bold">${truncatedText}</text>
     </g>`;
   };
@@ -67,7 +68,7 @@ export default function HexagonPreview({
   const hexagonSVG: string = useMemo(() => {
     const points: string = vertices.map((p: Point): string => `${p.x},${p.y}`).join(' ');
 
-    const basePolygon: string = `<polygon points="${points}" fill="#f8f8f8" stroke="#aaa" stroke-width="0.5"/>`;
+    const basePolygon: string = `<polygon points="${points}" class="fill-gray-200 dark:fill-gray-800"  stroke-width="0.5"/>`;
 
     // Create borders in a single iteration
     const borders: string = vertices

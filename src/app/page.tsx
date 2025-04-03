@@ -3,6 +3,7 @@
 import HexagonCreator from '@/components/Creator';
 import HexagonList from '@/components/List';
 import HexagonOptimalLayout from '@/components/OptimalLayout';
+import ThemeToggle from '@/components/ThemeToggle';
 import { BuffType } from '@/lib/enums';
 import { ColorOption, Item } from '@/lib/types';
 import { debounce } from 'lodash';
@@ -104,10 +105,15 @@ export default function Home() {
   };
 
   return (
-    <div className='bg-gray-100 font-sans min-h-screen'>
+    <div className='bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans min-h-screen'>
       <main className='p-4 md:p-8'>
-        <div className='container mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-xl max-w-6xl'>
-          <h1 className='text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-800'>ToyZ Layout Optimizer</h1>
+        <div className='container mx-auto bg-white dark:bg-gray-700 p-4 sm:p-6 rounded-lg shadow-xl max-w-6xl'>
+          <div className='relative'>
+            <h1 className='text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center'>ToyZ Layout Optimizer</h1>
+            <div className='absolute top-0 right-0'>
+              <ThemeToggle />
+            </div>
+          </div>
           <div className='flex flex-col lg:flex-row gap-6'>
             <div className='flex flex-col gap-6 lg:w-1/2'>
               <HexagonCreator onAddItem={handleAddItem} />
@@ -124,7 +130,7 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <footer className='mb-1 text-[8pt] text-gray-800 flex justify-center gap-3'>
+      <footer className='mb-1 text-[8pt] flex justify-center gap-3'>
         <span>
           <span>Made with {'🍕'} by </span>
           <a href='https://jeramai.github.io' target='_blank'>
@@ -135,7 +141,7 @@ export default function Home() {
         <span>
           <span>{`Donations: `}</span>
           <button onClick={() => handleCopy('0xB6506425609473dFc00eb1C4085850582438f0D0')} className='cursor-pointer'>
-            <code className='text-green-700'>0xB6506425609473dFc00eb1C4085850582438f0D0</code>
+            <code className='text-green-700 dark:text-green-600'>0xB6506425609473dFc00eb1C4085850582438f0D0</code>
           </button>
         </span>
       </footer>
