@@ -1,3 +1,4 @@
+import { ColorOption } from '@/lib/types';
 import { useMemo } from 'react';
 
 const DEFAULT_COLOR = '#000000';
@@ -9,7 +10,7 @@ interface Point {
 }
 
 interface HexagonPreviewProps {
-  colors: string[];
+  colors: ColorOption[];
   size?: number;
   text?: string;
   lineThickness?: number;
@@ -72,7 +73,7 @@ export default function HexagonPreview({
     const borders: string = vertices
       .map((p1: Point, i: number): string => {
         const p2: Point = vertices[(i + 1) % 6];
-        const color: string = colors[i] || DEFAULT_COLOR;
+        const color: ColorOption = colors[i] || DEFAULT_COLOR;
         return `<line 
           class="border-line" 
           data-border-index="${i}" 

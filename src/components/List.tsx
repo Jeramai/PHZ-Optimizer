@@ -1,11 +1,6 @@
+import { Item } from '@/lib/types';
 import React from 'react';
 import HexagonPreview from './Preview';
-
-// Define interfaces for better type safety
-interface Item {
-  id: string;
-  colors: string[];
-}
 
 interface RemoveButtonProps {
   id: string;
@@ -34,6 +29,7 @@ const RemoveButton = React.memo(({ id, onRemoveItem }: RemoveButtonProps) => (
     &times;
   </button>
 ));
+RemoveButton.displayName = 'RemoveButton';
 
 const HexagonItem = React.memo(({ item, onRemoveItem }: HexagonItemProps) => (
   <div className='item-preview-container relative'>
@@ -41,6 +37,7 @@ const HexagonItem = React.memo(({ item, onRemoveItem }: HexagonItemProps) => (
     <RemoveButton id={item.id} onRemoveItem={onRemoveItem} />
   </div>
 ));
+HexagonItem.displayName = 'HexagonItem';
 
 const HexagonList = React.memo(({ items, onRemoveItem }: HexagonListProps) => {
   const itemCount = items.length;
@@ -63,5 +60,6 @@ const HexagonList = React.memo(({ items, onRemoveItem }: HexagonListProps) => {
     </div>
   );
 });
+HexagonList.displayName = 'HexagonList';
 
 export default HexagonList;

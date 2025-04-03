@@ -197,7 +197,7 @@ async function findOptimalLayout(itemList: Item[]): Promise<LayoutResult> {
 }
 
 // Web Worker implementation
-self.onmessage = async function (e: MessageEvent<any>) {
+self.onmessage = async function (e) {
   const { itemList, requestId } = e.data;
 
   try {

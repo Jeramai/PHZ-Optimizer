@@ -3,61 +3,73 @@
 import HexagonCreator from '@/components/Creator';
 import HexagonList from '@/components/List';
 import HexagonOptimalLayout from '@/components/OptimalLayout';
+import { ColorOption, Item } from '@/lib/types';
+import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const LOCAL_STORAGE_KEY = 'phzOptimizerItems';
 
-interface Item {
-  id: string;
-  colors: string[];
-}
-
 export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
 
-  // Load items only once on mount
+  const generateUniqueId = useCallback(() => {
+    return crypto.randomUUID();
+  }, []);
+
+  // Create the save function outside of debounce
+  const saveToStorage = useCallback((items: Item[]) => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+    } catch (error) {
+      console.error('Error saving items to localStorage:', error);
+    }
+  }, []);
+
+  // Create the debounced version using useMemo
+  const debouncedSaveToStorage = useMemo(() => debounce(saveToStorage, 1000), [saveToStorage]);
+
   useEffect(() => {
     try {
       const storedItems = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (storedItems) {
-        setItems(JSON.parse(storedItems));
+        const parsedItems = JSON.parse(storedItems);
+        if (
+          Array.isArray(parsedItems) &&
+          parsedItems.every((item) => typeof item === 'object' && 'id' in item && 'colors' in item && Array.isArray(item.colors))
+        ) {
+          setItems(parsedItems);
+        }
       }
     } catch (error) {
       console.error('Error loading items from localStorage:', error);
     }
   }, []);
 
-  // Memoize the storage effect
   useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
-    } catch (error) {
-      console.error('Error saving items to localStorage:', error);
-    }
-  }, [items]);
+    debouncedSaveToStorage(items);
+    return () => {
+      debouncedSaveToStorage.flush();
+    };
+  }, [items, debouncedSaveToStorage]);
 
-  // Memoize callback functions
-  const handleAddItem = useCallback((colors: string[]) => {
-    setItems((prevItems) => [
-      ...prevItems,
-      {
-        id: generateUniqueId(),
-        colors
-      }
-    ]);
-  }, []);
+  const handleAddItem = useCallback(
+    (colors: ColorOption[]) => {
+      setItems((prevItems) => [
+        ...prevItems,
+        {
+          id: generateUniqueId(),
+          colors
+        }
+      ]);
+    },
+    [generateUniqueId]
+  );
 
   const handleRemoveItem = useCallback((id: string) => {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id));
   }, []);
 
-  // Memoize the generateUniqueId function
-  const generateUniqueId = useMemo(
-    () => () => {
-      return `${Date.now().toString(36)}-${Math.random().toString(36).substring(2)}`;
-    },
-    []
-  );
+  const memoizedItems = useMemo(() => items, [items]);
 
   return (
     <main className='bg-gray-100 font-sans p-4 md:p-8 h-screen w-screen'>
@@ -66,10 +78,10 @@ export default function Home() {
         <div className='flex flex-col lg:flex-row gap-6'>
           <div className='flex flex-col gap-6 lg:w-1/2'>
             <HexagonCreator onAddItem={handleAddItem} />
-            <HexagonList items={items} onRemoveItem={handleRemoveItem} />
+            <HexagonList items={memoizedItems} onRemoveItem={handleRemoveItem} />
           </div>
           <div className='lg:w-1/2'>
-            <HexagonOptimalLayout itemList={items} />
+            <HexagonOptimalLayout itemList={memoizedItems} />
           </div>
         </div>
       </div>

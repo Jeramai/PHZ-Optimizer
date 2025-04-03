@@ -1,10 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Item } from '@/lib/types';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface HexagonOptimalLayoutProps {
-  itemList: Array<{
-    id: string;
-    colors: string[];
-  }>;
+  itemList: Array<Item>;
 }
 
 const HEX_SIZE = 25;
@@ -163,7 +161,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
     };
   }, []);
 
-  function drawLayout(arrangement: Array<{ id: string; colors: string[] }>) {
+  const drawLayout = useCallback((arrangement: Array<{ id: string; colors: string[] }>) => {
     if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) {
       setSvgLayout('<text x="100" y="100" text-anchor="middle" fill="#9ca3af">No layout to display</text>');
       return;
@@ -196,7 +194,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
     svgParts.push('</g>');
 
     setSvgLayout(svgParts.join(''));
-  }
+  }, []);
 
   // Store request ID in a ref to prevent unnecessary re-renders
   const currentRequestIdRef = useRef(0);
@@ -220,7 +218,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
     return () => {
       worker.terminate();
     };
-  }, []);
+  }, [drawLayout]);
 
   // Separate debounced item list processing
   useEffect(() => {
@@ -272,5 +270,6 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
     </div>
   );
 });
+HexagonOptimalLayout.displayName = 'HexagonOptimalLayout';
 
 export default HexagonOptimalLayout;

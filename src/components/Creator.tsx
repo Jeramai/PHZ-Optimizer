@@ -1,20 +1,6 @@
+import { BORDER_COLORS, DEFAULT_COLORS } from '@/lib/enums';
 import { memo, useCallback, useState } from 'react';
 import HexagonPreview from './Preview';
-
-interface BorderColors {
-  [key: string]: string;
-}
-
-const BORDER_COLORS: BorderColors = {
-  Black: '#000000',
-  Red: '#FF0000',
-  Orange: '#FFA500',
-  Blue: '#0000FF',
-  Grey: '#808080',
-  Purple: '#800080'
-} as const;
-
-const DEFAULT_COLORS = ['Red', 'Orange', 'Blue', 'Grey', 'Purple', 'Black'] as const;
 
 type ColorOption = keyof typeof BORDER_COLORS;
 
@@ -29,7 +15,7 @@ interface SelectBorderColorProps {
 }
 
 export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorProps>) {
-  const [selectedColors, setSelectedColors] = useState<ColorOption[]>(DEFAULT_COLORS);
+  const [selectedColors, setSelectedColors] = useState<ColorOption[]>([...DEFAULT_COLORS]);
 
   const handleColorChange = useCallback((index: number, color: ColorOption) => {
     setSelectedColors((prev) => {
@@ -40,7 +26,8 @@ export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorPro
   }, []);
 
   const handleAddItem = useCallback(() => {
-    onAddItem(selectedColors);
+    // Spread to create a new mutable array
+    onAddItem([...selectedColors]);
   }, [onAddItem, selectedColors]);
 
   return (
