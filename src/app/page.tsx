@@ -95,6 +95,14 @@ export default function Home() {
     [items, selectedBuffTypes]
   );
 
+  const handleCopy = async (textToCopy: string) => {
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+    }
+  };
+
   return (
     <div className='bg-gray-100 font-sans min-h-screen'>
       <main className='p-4 md:p-8'>
@@ -116,11 +124,20 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <footer className='mb-1 text-[8pt] text-center text-gray-800'>
-        <span>Made with {'🍕'} by </span>
-        <a href='https://jeramai.github.io' target='_blank'>
-          Jeram.ai
-        </a>
+      <footer className='mb-1 text-[8pt] text-gray-800 flex justify-center gap-3'>
+        <span>
+          <span>Made with {'🍕'} by </span>
+          <a href='https://jeramai.github.io' target='_blank'>
+            Jeram.ai
+          </a>
+        </span>
+        <span>|</span>
+        <span>
+          <span>{`Donations: `}</span>
+          <button onClick={() => handleCopy('0xB6506425609473dFc00eb1C4085850582438f0D0')} className='cursor-pointer'>
+            <code className='text-green-700'>0xB6506425609473dFc00eb1C4085850582438f0D0</code>
+          </button>
+        </span>
       </footer>
     </div>
   );

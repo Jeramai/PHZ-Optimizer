@@ -49,8 +49,17 @@ const HexagonList = React.memo(({ items, onRemoveItem, selectedBuffTypes, handle
   return (
     <div id='item-list' className={CONTAINER_CLASSES}>
       <h2 className='text-lg sm:text-xl font-semibold mb-2 text-gray-700'>Item List ({itemCount} items)</h2>
+      {itemCount < 7 ? (
+        <p id='list-message' className='text-sm text-gray-600 mb-4 min-h-[20px]'>
+          Add items using the creator above. At least 7 items are needed.
+        </p>
+      ) : itemCount > 13 ? (
+        <p id='list-message' className='text-sm text-gray-600 mb-4 min-h-[20px]'>
+          It will take longer to find the optimal layout.
+        </p>
+      ) : null}
 
-      <div className='flex flex-wrap justify-between gap-2 p-3 border border-gray-300 rounded-md bg-white shadow-sm'>
+      <div className='flex flex-wrap justify-between gap-2 p-3 border border-gray-300 rounded-md bg-white shadow-sm mb-5'>
         {Object.entries(BuffType).map((value) => (
           <label key={value[0]} className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded'>
             <input
@@ -64,14 +73,6 @@ const HexagonList = React.memo(({ items, onRemoveItem, selectedBuffTypes, handle
           </label>
         ))}
       </div>
-
-      <p id='list-message' className='text-sm text-gray-600 mb-4 min-h-[20px]'>
-        {itemCount < 7
-          ? 'Add items using the creator above. At least 7 items are needed.'
-          : itemCount > 13
-          ? 'It will take longer to find the optimal layout.'
-          : ''}
-      </p>
       <div className={GRID_CLASSES}>
         {items.map((item) => (
           <HexagonItem
