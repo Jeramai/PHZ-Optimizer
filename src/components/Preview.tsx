@@ -1,0 +1,97 @@
+import { useMemo } from 'react';
+
+const DEFAULT_COLOR = '#000000';
+const DEFAULT_SIZE = 28;
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface HexagonPreviewProps {
+  colors: string[];
+  size?: number;
+  text?: string;
+  lineThickness?: number;
+}
+
+export default function HexagonPreview({
+  colors,
+  size = DEFAULT_SIZE,
+  text = '',
+  lineThickness = 4
+}: Readonly<HexagonPreviewProps>) {
+  // Memoize vertices calculation
+  const vertices: Point[] = useMemo(() => {
+    // Adjust the size to account for line thickness
+    const adjustedSize = size - lineThickness / 2;
+    const cx: number = size;
+    const cy: number = size;
+    const points: Point[] = [];
+
+    for (let i = 0; i < 6; i++) {
+      const angleDeg: number = 60 * i - 150;
+      const angleRad: number = (Math.PI / 180) * angleDeg;
+      points.push({
+        x: cx + adjustedSize * Math.cos(angleRad),
+        y: cy + adjustedSize * Math.sin(angleRad)
+      });
+    }
+    return points;
+  }, [size, lineThickness]);
+
+  const getTextConfiguration = (text: string, size: number) => {
+    const fontSize = size * 0.35;
+    const maxLength = 4;
+
+    const truncatedText = text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+
+    // Add title element for tooltip if text is truncated
+    const titleElement = text.length > maxLength ? `<title>${text}</title>` : '';
+
+    return `<g>
+      ${titleElement}
+      <text 
+        x="${size}" 
+        y="${size}" 
+        font-size="${fontSize}px" 
+        fill="#333" 
+        text-anchor="middle" 
+        dominant-baseline="middle"
+        font-weight="bold">${truncatedText}</text>
+    </g>`;
+  };
+
+  // Memoize the SVG generation
+  const hexagonSVG: string = useMemo(() => {
+    const points: string = vertices.map((p: Point): string => `${p.x},${p.y}`).join(' ');
+
+    const basePolygon: string = `<polygon points="${points}" fill="#f8f8f8" stroke="#aaa" stroke-width="0.5"/>`;
+
+    // Create borders in a single iteration
+    const borders: string = vertices
+      .map((p1: Point, i: number): string => {
+        const p2: Point = vertices[(i + 1) % 6];
+        const color: string = colors[i] || DEFAULT_COLOR;
+        return `<line 
+          class="border-line" 
+          data-border-index="${i}" 
+          x1="${p1.x}" 
+          y1="${p1.y}" 
+          x2="${p2.x}" 
+          y2="${p2.y}" 
+          stroke="${color}"
+          stroke-width="${lineThickness}" 
+          stroke-linecap="round"
+          />`;
+      })
+      .join('');
+
+    const textElement: string = text ? getTextConfiguration(text, size) : '';
+    const groupIdAttr: string = text !== '' ? `data-item-id="${text}"` : '';
+
+    return `<g class="hexagon-item" ${groupIdAttr}>${basePolygon}${borders}${textElement}</g>`;
+  }, [vertices, colors, size, text, lineThickness]);
+
+  return <svg viewBox={`0 0 ${size * 2} ${size * 2}`} dangerouslySetInnerHTML={{ __html: hexagonSVG }} />;
+}
