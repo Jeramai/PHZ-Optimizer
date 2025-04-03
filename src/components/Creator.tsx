@@ -28,6 +28,7 @@ export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorPro
 
   const handleAddItem = useCallback(() => {
     // Spread to create a new mutable array
+    setName('');
     onAddItem(name, buffType, [...selectedColors]);
   }, [onAddItem, name, buffType, selectedColors]);
 
