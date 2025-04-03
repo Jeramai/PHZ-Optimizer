@@ -1,31 +1,8 @@
-// Type definitions remain the same
-type ColorName = 'Black' | 'Red' | 'Orange' | 'Blue' | 'Grey' | 'Purple';
-interface Item {
-  id: number;
-  colors: ColorName[];
-}
-interface LayoutResult {
-  message: string;
-  arrangement?: Item[];
-  score?: number;
-}
+import { ADJACENCY } from '@/lib/enums';
+import { Item, LayoutResult } from '@/lib/types';
 
 const REQUIRED_ITEMS_FOR_LAYOUT = 7;
 const MAX_COMBINATIONS_PER_CHUNK = 1000; // Limit combinations processed at once
-const ADJACENCY = [
-  [0, 0, 1, 3], // Center to Top-Right
-  [0, 1, 2, 4], // Center to Right
-  [0, 2, 3, 5], // Center to Bottom-Right
-  [0, 3, 4, 0], // Center to Bottom-Left
-  [0, 4, 5, 1], // Center to Left
-  [0, 5, 6, 2], // Center to Top-Left
-  [1, 2, 2, 5], // Top-Right to Right
-  [2, 3, 3, 0], // Right to Bottom-Right
-  [3, 4, 4, 1], // Bottom-Right to Bottom-Left
-  [4, 5, 5, 2], // Bottom-Left to Left
-  [5, 0, 6, 3], // Left to Top-Left
-  [6, 1, 1, 4] // Top-Left to Top-Right
-];
 
 // Optimized combinations generator that yields chunks
 function* combinationsInChunks(arr: Item[], k: number): Generator<Item[][]> {
@@ -136,7 +113,7 @@ async function findOptimalLayout(itemList: Item[]): Promise<LayoutResult> {
   }
 
   let overallBestScore = -1;
-  let overallBestArrangement: Item[] | null = null;
+  let bestArrangements: Item[][] = []; // Array to store all best arrangements
   let permutationsChecked = 0;
   const startTime = Date.now();
 
@@ -150,26 +127,21 @@ async function findOptimalLayout(itemList: Item[]): Promise<LayoutResult> {
           const currentScore = calculateScore(permutation);
 
           if (currentScore > overallBestScore) {
+            // New best score found, clear previous arrangements
             overallBestScore = currentScore;
-            overallBestArrangement = [...permutation];
+            bestArrangements = [[...permutation]];
+          } else if (currentScore === overallBestScore) {
+            // Equal to best score, add to arrangements
+            bestArrangements.push([...permutation]);
+          }
 
-            // Report progress
-            if (permutationsChecked % 1000 === 0) {
-              self.postMessage({
-                type: 'progress',
-                message: `Checked ${permutationsChecked} permutations. Current best score: ${overallBestScore}`,
-                progress: permutationsChecked
-              });
-            }
-
-            // Optional: Break if perfect score found
-            if (overallBestScore === ADJACENCY.length) {
-              return {
-                message: `Perfect layout found! Score: ${overallBestScore}. (${permutationsChecked} permutations checked)`,
-                arrangement: overallBestArrangement,
-                score: overallBestScore
-              };
-            }
+          // Report progress
+          if (permutationsChecked % 1000 === 0) {
+            self.postMessage({
+              type: 'progress',
+              message: `Checked ${permutationsChecked} permutations. Current best score: ${overallBestScore} (${bestArrangements.length} arrangements)`,
+              progress: permutationsChecked
+            });
           }
         }
 
@@ -183,12 +155,12 @@ async function findOptimalLayout(itemList: Item[]): Promise<LayoutResult> {
 
   const timeElapsed = (Date.now() - startTime) / 1000;
 
-  return overallBestArrangement
+  return bestArrangements.length > 0
     ? {
-        message: `Optimal layout found! Score: ${overallBestScore}. (${permutationsChecked} permutations checked in ${timeElapsed.toFixed(
-          1
-        )}s)`,
-        arrangement: overallBestArrangement,
+        message: `Found ${bestArrangements.length} optimal layout${
+          bestArrangements.length > 1 ? 's' : ''
+        }! Score: ${overallBestScore}. (${permutationsChecked} permutations checked in ${timeElapsed.toFixed(1)}s)`,
+        arrangements: bestArrangements,
         score: overallBestScore
       }
     : {

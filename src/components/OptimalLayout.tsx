@@ -1,3 +1,4 @@
+import { ADJACENCY } from '@/lib/enums';
 import { Item } from '@/lib/types';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -8,20 +9,6 @@ interface HexagonOptimalLayoutProps {
 const HEX_SIZE = 25;
 const LAYOUT_GRID_RADIUS = HEX_SIZE * 2.2;
 const REQUIRED_ITEMS_FOR_LAYOUT = 7;
-const ADJACENCY = [
-  [0, 0, 1, 3], // Center to Top-Right
-  [0, 1, 2, 4], // Center to Right
-  [0, 2, 3, 5], // Center to Bottom-Right
-  [0, 3, 4, 0], // Center to Bottom-Left
-  [0, 4, 5, 1], // Center to Left
-  [0, 5, 6, 2], // Center to Top-Left
-  [1, 2, 2, 5], // Top-Right to Right
-  [2, 3, 3, 0], // Right to Bottom-Right
-  [3, 4, 4, 1], // Bottom-Right to Bottom-Left
-  [4, 5, 5, 2], // Bottom-Left to Left
-  [5, 0, 6, 3], // Left to Top-Left
-  [6, 1, 1, 4] // Top-Left to Top-Right
-];
 
 // Precalculated values
 const ANGLES = Array.from({ length: 6 }).map((_, i) => ({
@@ -57,6 +44,9 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
   const [svgLayout, setSvgLayout] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const [currentArrangement, setCurrentArrangement] = useState<number>(0);
+  const [arrangements, setArrangements] = useState<Item[][]>([]);
+
   // Memoized border midpoint calculation
   const memoizedCalculateBorderMidpoint = useMemo(() => {
     const cache = new Map();
@@ -75,7 +65,6 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
       return result;
     };
   }, []);
-
   const createConnectionLine = useMemo(
     () => (start: { x: number; y: number }, end: { x: number; y: number }, color: string) =>
       `<line 
@@ -160,8 +149,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
       return svg;
     };
   }, []);
-
-  const drawLayout = useCallback((arrangement: Array<{ id: string; colors: string[] }>) => {
+  const drawLayout = useCallback((arrangement: Array<Item>) => {
     if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) {
       setSvgLayout('<text x="100" y="100" text-anchor="middle" fill="#9ca3af">No layout to display</text>');
       return;
@@ -204,10 +192,10 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
     const worker = new Worker(new URL('../workers/findOptimalLayout.ts', import.meta.url));
 
     worker.onmessage = (e) => {
-      const { arrangement, message, requestId } = e.data;
+      const { arrangements, message, requestId } = e.data;
       // Only process latest request
       if (requestId === currentRequestIdRef.current) {
-        drawLayout(arrangement);
+        setArrangements(arrangements);
         setMessage(message);
         setIsLoading(false);
       }
@@ -218,7 +206,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
     return () => {
       worker.terminate();
     };
-  }, [drawLayout]);
+  }, []);
 
   // Separate debounced item list processing
   useEffect(() => {
@@ -227,17 +215,25 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
     const requestId = ++currentRequestIdRef.current;
     const debounceTimeout = setTimeout(() => {
       setIsLoading(true);
+      setMessage('Finding the optimal layout..');
       workerRef.current?.postMessage({ itemList, requestId });
     }, 150);
 
     return () => clearTimeout(debounceTimeout);
   }, [itemList]);
 
+  // Render the selected arrangement
+  useEffect(() => {
+    if (arrangements?.length > 0) {
+      drawLayout(arrangements[currentArrangement]);
+    }
+  }, [currentArrangement, arrangements, drawLayout]);
+
   return (
     <div id='optimalLayout' className='p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm h-full flex flex-col'>
       <h2 className='text-lg sm:text-xl font-semibold mb-4 text-gray-700 text-center'>Optimal Layout</h2>
       <div className='flex flex-col items-center justify-center gap-6 flex-grow'>
-        <div className='relative w-full flex justify-center items-center mb-4'>
+        <div className='relative w-full flex justify-center items-center'>
           <svg
             id='layout-display-svg'
             className={isLoading ? 'grayscale opacity-20' : ''}
@@ -250,6 +246,25 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
             </div>
           )}
         </div>
+
+        {!isLoading && arrangements?.length > 1 ? (
+          <div className='flex gap-3'>
+            <button
+              className='bg-gray-200 rounded-full text-gray-800 p-2 cursor-pointer disabled:opacity-25'
+              disabled={currentArrangement === 0}
+              onClick={() => setCurrentArrangement((ca) => ca - 1)}
+            >
+              PREV
+            </button>
+            <button
+              className='bg-gray-200 rounded-full text-gray-800 p-2 cursor-pointer disabled:opacity-25'
+              disabled={currentArrangement === arrangements.length - 1}
+              onClick={() => setCurrentArrangement((ca) => ca + 1)}
+            >
+              NEXT
+            </button>
+          </div>
+        ) : null}
         <div className='text-center'>
           <p
             id='layout-message'

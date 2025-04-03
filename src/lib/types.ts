@@ -9,3 +9,8 @@ export interface Item {
   id: string;
   colors: ColorOption[];
 }
+export interface LayoutResult {
+  message: string;
+  arrangements?: Item[][];
+  score?: number;
+}
