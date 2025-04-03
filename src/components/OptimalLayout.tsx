@@ -86,16 +86,17 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
         </line>`,
     []
   );
-  const getTextConfiguration = (text: string, cx: number, cy: number, size: number) => {
-    const fontSize = size * 0.35;
-    const maxLength = 4;
+  const getTextConfiguration = useMemo(
+    () => (text: string, cx: number, cy: number, size: number) => {
+      const fontSize = size * 0.35;
+      const maxLength = 4;
 
-    const truncatedText = text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+      const truncatedText = text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
 
-    // Add title element for tooltip if text is truncated
-    const titleElement = text.length > maxLength ? `<title>${text}</title>` : '';
+      // Add title element for tooltip if text is truncated
+      const titleElement = text.length > maxLength ? `<title>${text}</title>` : '';
 
-    return `<g>
+      return `<g>
       ${titleElement}
       <text 
         x="${cx}" 
@@ -106,7 +107,9 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
         dominant-baseline="middle"
         font-weight="bold">${truncatedText}</text>
     </g>`;
-  };
+    },
+    []
+  );
   const createHexagonSVG = useMemo(() => {
     return (colors: string[], cx: number, cy: number, size: number, displayId?: string) => {
       const vertices = HEX_VERTICES.map(({ cos, sin }) => ({
@@ -148,41 +151,44 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
       svg += '</g>';
       return svg;
     };
-  }, []);
-  const drawLayout = useCallback((arrangement: Array<Item>) => {
-    if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) {
-      setSvgLayout('<text x="100" y="100" text-anchor="middle" fill="#9ca3af">No layout to display</text>');
-      return;
-    }
-
-    // Use RequestAnimationFrame only when necessary
-    const svgParts = [];
-
-    // Add hexagons
-    svgParts.push('<g id="hexagon-group">');
-    arrangement.forEach((item: Item, index) => {
-      if (item) {
-        const pos = POSITIONS[index];
-        svgParts.push(createHexagonSVG(item.colors as string[], pos.x, pos.y, HEX_SIZE, item.id));
+  }, [getTextConfiguration]);
+  const drawLayout = useCallback(
+    (arrangement: Array<Item>) => {
+      if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) {
+        setSvgLayout('<text x="100" y="100" text-anchor="middle" fill="#9ca3af">No layout to display</text>');
+        return;
       }
-    });
-    svgParts.push('</g>');
 
-    // Add connections
-    svgParts.push('<g id="connection-lines">');
-    ADJACENCY.forEach(([posIndexA, borderA, posIndexB, borderB]) => {
-      const itemA = arrangement[posIndexA];
-      const itemB = arrangement[posIndexB];
-      if (itemA?.colors[borderA] && itemB?.colors[borderB] && itemA.colors[borderA] === itemB.colors[borderB]) {
-        const start = memoizedCalculateBorderMidpoint(POSITIONS[posIndexA], borderA, HEX_SIZE);
-        const end = memoizedCalculateBorderMidpoint(POSITIONS[posIndexB], borderB, HEX_SIZE);
-        svgParts.push(createConnectionLine(start, end, itemA.colors[borderA] as string));
-      }
-    });
-    svgParts.push('</g>');
+      // Use RequestAnimationFrame only when necessary
+      const svgParts = [];
 
-    setSvgLayout(svgParts.join(''));
-  }, []);
+      // Add hexagons
+      svgParts.push('<g id="hexagon-group">');
+      arrangement.forEach((item: Item, index) => {
+        if (item) {
+          const pos = POSITIONS[index];
+          svgParts.push(createHexagonSVG(item.colors as string[], pos.x, pos.y, HEX_SIZE, item.name || item.id));
+        }
+      });
+      svgParts.push('</g>');
+
+      // Add connections
+      svgParts.push('<g id="connection-lines">');
+      ADJACENCY.forEach(([posIndexA, borderA, posIndexB, borderB]) => {
+        const itemA = arrangement[posIndexA];
+        const itemB = arrangement[posIndexB];
+        if (itemA?.colors[borderA] && itemB?.colors[borderB] && itemA.colors[borderA] === itemB.colors[borderB]) {
+          const start = memoizedCalculateBorderMidpoint(POSITIONS[posIndexA], borderA, HEX_SIZE);
+          const end = memoizedCalculateBorderMidpoint(POSITIONS[posIndexB], borderB, HEX_SIZE);
+          svgParts.push(createConnectionLine(start, end, itemA.colors[borderA] as string));
+        }
+      });
+      svgParts.push('</g>');
+
+      setSvgLayout(svgParts.join(''));
+    },
+    [createConnectionLine, createHexagonSVG, memoizedCalculateBorderMidpoint]
+  );
 
   // Store request ID in a ref to prevent unnecessary re-renders
   const currentRequestIdRef = useRef(0);
@@ -250,14 +256,14 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
         {!isLoading && arrangements?.length > 1 ? (
           <div className='flex gap-3'>
             <button
-              className='bg-gray-200 rounded-full text-gray-800 p-2 cursor-pointer disabled:opacity-25'
+              className='bg-gray-200 rounded-full text-gray-800 px-3 py-1 cursor-pointer disabled:opacity-25 disabled:cursor-default'
               disabled={currentArrangement === 0}
               onClick={() => setCurrentArrangement((ca) => ca - 1)}
             >
               PREV
             </button>
             <button
-              className='bg-gray-200 rounded-full text-gray-800 p-2 cursor-pointer disabled:opacity-25'
+              className='bg-gray-200 rounded-full text-gray-800 px-3 py-1 cursor-pointer disabled:opacity-25 disabled:cursor-default'
               disabled={currentArrangement === arrangements.length - 1}
               onClick={() => setCurrentArrangement((ca) => ca + 1)}
             >
@@ -271,7 +277,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
             className={`text-sm mt-3 min-h-[40px] ${
               message.startsWith('Calculating')
                 ? 'text-blue-600'
-                : message.includes('found')
+                : message.startsWith('Found')
                 ? 'text-green-600'
                 : message.startsWith('Need')
                 ? 'text-red-600'

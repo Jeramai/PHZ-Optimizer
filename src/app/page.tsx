@@ -53,11 +53,12 @@ export default function Home() {
   }, [items, debouncedSaveToStorage]);
 
   const handleAddItem = useCallback(
-    (colors: ColorOption[]) => {
+    (name: string, colors: ColorOption[]) => {
       setItems((prevItems) => [
         ...prevItems,
         {
           id: generateUniqueId(),
+          name: name,
           colors
         }
       ]);
@@ -72,7 +73,7 @@ export default function Home() {
   const memoizedItems = useMemo(() => items, [items]);
 
   return (
-    <main className='bg-gray-100 font-sans p-4 md:p-8 h-screen w-screen'>
+    <main className='bg-gray-100 font-sans p-4 md:p-8 min-h-screen'>
       <div className='container mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-xl max-w-6xl'>
         <h1 className='text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-800'>ToyZ Layout Optimizer</h1>
         <div className='flex flex-col lg:flex-row gap-6'>

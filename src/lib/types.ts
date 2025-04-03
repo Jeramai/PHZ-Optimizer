@@ -7,6 +7,7 @@ export interface BorderColors {
 export type ColorOption = keyof typeof BORDER_COLORS;
 export interface Item {
   id: string;
+  name: string;
   colors: ColorOption[];
 }
 export interface LayoutResult {

@@ -5,7 +5,7 @@ import HexagonPreview from './Preview';
 type ColorOption = keyof typeof BORDER_COLORS;
 
 interface HexagonCreatorProps {
-  onAddItem: (colors: ColorOption[]) => void;
+  onAddItem: (name: string, colors: ColorOption[]) => void;
 }
 
 interface SelectBorderColorProps {
@@ -15,6 +15,7 @@ interface SelectBorderColorProps {
 }
 
 export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorProps>) {
+  const [name, setName] = useState<string>('');
   const [selectedColors, setSelectedColors] = useState<ColorOption[]>([...DEFAULT_COLORS]);
 
   const handleColorChange = useCallback((index: number, color: ColorOption) => {
@@ -27,21 +28,39 @@ export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorPro
 
   const handleAddItem = useCallback(() => {
     // Spread to create a new mutable array
-    onAddItem([...selectedColors]);
-  }, [onAddItem, selectedColors]);
+    onAddItem(name, [...selectedColors]);
+  }, [onAddItem, name, selectedColors]);
 
   return (
     <div className='p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm'>
       <h2 className='text-lg sm:text-xl font-semibold mb-5 text-gray-700'>Create New Item</h2>
+      <div className='flex flex-col mb-5'>
+        <label htmlFor='hexagonName' className='block text-xs font-medium text-gray-500 mb-1'>
+          ToyZ Name
+        </label>
+        <div className='relative w-full'>
+          <input
+            id='hexagonName'
+            type='text'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder='Enter ToyZ name (optional)'
+            className='w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+          />
+        </div>
+      </div>
+
       <div className='flex flex-col md:flex-row md:items-center gap-4 md:gap-6'>
         <div className='grid grid-cols-2 sm:grid-cols-3 gap-3 flex-grow'>
           {selectedColors.map((color, index) => (
             <SelectBorderColor key={index} color={color} index={index} handleColorChange={handleColorChange} />
           ))}
         </div>
-        <div className='flex flex-col items-center mt-4 md:mt-0 flex-shrink-0'>
+        <div className='flex flex-col items-center mt-4 md:mt-0 flex-shrink-0 w-full md:w-[100px]'>
           <span className='block text-sm font-medium text-gray-500 mb-2'>Preview</span>
-          <HexagonPreview colors={selectedColors.map((color) => BORDER_COLORS[color])} text='Name' />
+          <div className='aspect-square h-[100px]'>
+            <HexagonPreview colors={selectedColors.map((color) => BORDER_COLORS[color])} text={name || 'Name'} />
+          </div>
         </div>
       </div>
       <div className='text-center mt-6'>

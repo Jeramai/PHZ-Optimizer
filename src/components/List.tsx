@@ -33,7 +33,7 @@ RemoveButton.displayName = 'RemoveButton';
 
 const HexagonItem = React.memo(({ item, onRemoveItem }: HexagonItemProps) => (
   <div className='item-preview-container relative'>
-    <HexagonPreview colors={item.colors} text={item.id} />
+    <HexagonPreview colors={item.colors} text={item.name || item.id} />
     <RemoveButton id={item.id} onRemoveItem={onRemoveItem} />
   </div>
 ));
