@@ -15,12 +15,10 @@ const ANGLES = Array.from({ length: 6 }).map((_, i) => ({
   deg: 60 * i - 150,
   rad: (Math.PI / 180) * (60 * i - 150)
 }));
-
 const HEX_VERTICES = ANGLES.map(({ rad }) => ({
   cos: Math.cos(rad),
   sin: Math.sin(rad)
 }));
-
 const POSITIONS = (() => {
   const centerX = 100;
   const centerY = 100;
@@ -222,6 +220,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
     const debounceTimeout = setTimeout(() => {
       setIsLoading(true);
       setMessage('Finding the optimal layout..');
+
       workerRef.current?.postMessage({ itemList, requestId });
     }, 150);
 
@@ -238,6 +237,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
   return (
     <div id='optimalLayout' className='p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm h-full flex flex-col'>
       <h2 className='text-lg sm:text-xl font-semibold mb-4 text-gray-700 text-center'>Optimal Layout</h2>
+
       <div className='flex flex-col items-center justify-center gap-6 flex-grow'>
         <div className='relative w-full flex justify-center items-center'>
           <svg

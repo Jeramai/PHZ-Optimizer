@@ -26,4 +26,11 @@ const ADJACENCY = [
   [6, 1, 1, 4] // Top-Left to Top-Right
 ] as const;
 
+export enum BuffType {
+  AS = 'Attack Speed',
+  MELEE = 'Melee',
+  RANGED = 'Ranged',
+  BASIC = 'Basic'
+}
+
 export { ADJACENCY, BORDER_COLORS, DEFAULT_COLORS };

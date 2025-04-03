@@ -3,6 +3,7 @@
 import HexagonCreator from '@/components/Creator';
 import HexagonList from '@/components/List';
 import HexagonOptimalLayout from '@/components/OptimalLayout';
+import { BuffType } from '@/lib/enums';
 import { ColorOption, Item } from '@/lib/types';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -53,12 +54,13 @@ export default function Home() {
   }, [items, debouncedSaveToStorage]);
 
   const handleAddItem = useCallback(
-    (name: string, colors: ColorOption[]) => {
+    (name: string, buffType: BuffType, colors: ColorOption[]) => {
       setItems((prevItems) => [
         ...prevItems,
         {
           id: generateUniqueId(),
           name: name,
+          buffType,
           colors
         }
       ]);
@@ -70,22 +72,56 @@ export default function Home() {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id));
   }, []);
 
+  const [selectedBuffTypes, setSelectedBuffTypes] = useState<Set<BuffType>>(new Set());
+  const handleBuffTypeChange = (buffType: BuffType) => {
+    setSelectedBuffTypes((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(buffType)) {
+        newSet.delete(buffType);
+      } else {
+        newSet.add(buffType);
+      }
+      return newSet;
+    });
+  };
   const memoizedItems = useMemo(() => items, [items]);
+  const memoizedItemsFiltered = useMemo(
+    () =>
+      items.filter((item) => {
+        // If no buff types are selected, include all items
+        if (selectedBuffTypes.size === 0) return true;
+        return selectedBuffTypes.has(item.buffType);
+      }),
+    [items, selectedBuffTypes]
+  );
 
   return (
-    <main className='bg-gray-100 font-sans p-4 md:p-8 min-h-screen'>
-      <div className='container mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-xl max-w-6xl'>
-        <h1 className='text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-800'>ToyZ Layout Optimizer</h1>
-        <div className='flex flex-col lg:flex-row gap-6'>
-          <div className='flex flex-col gap-6 lg:w-1/2'>
-            <HexagonCreator onAddItem={handleAddItem} />
-            <HexagonList items={memoizedItems} onRemoveItem={handleRemoveItem} />
-          </div>
-          <div className='lg:w-1/2'>
-            <HexagonOptimalLayout itemList={memoizedItems} />
+    <div className='bg-gray-100 font-sans min-h-screen'>
+      <main className='p-4 md:p-8'>
+        <div className='container mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-xl max-w-6xl'>
+          <h1 className='text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-800'>ToyZ Layout Optimizer</h1>
+          <div className='flex flex-col lg:flex-row gap-6'>
+            <div className='flex flex-col gap-6 lg:w-1/2'>
+              <HexagonCreator onAddItem={handleAddItem} />
+              <HexagonList
+                items={memoizedItems}
+                onRemoveItem={handleRemoveItem}
+                selectedBuffTypes={selectedBuffTypes}
+                handleBuffTypeChange={handleBuffTypeChange}
+              />
+            </div>
+            <div className='lg:w-1/2'>
+              <HexagonOptimalLayout itemList={memoizedItemsFiltered} />
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+      <footer className='mb-1 text-[8pt] text-center text-gray-800'>
+        <span>Made with {'🍕'} by </span>
+        <a href='https://jeramai.github.io' target='_blank'>
+          Jeram.ai
+        </a>
+      </footer>
+    </div>
   );
 }
