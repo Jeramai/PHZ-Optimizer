@@ -50,15 +50,11 @@ const HexagonList = React.memo(({ items, onRemoveItem, selectedBuffTypes, handle
   return (
     <div id='item-list' className={CONTAINER_CLASSES}>
       <h2 className='text-lg sm:text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200'>Item List ({itemCount} items)</h2>
-      {itemCount < 7 ? (
-        <p id='list-message' className='text-sm text-gray-600 dark:text-gray-300 mb-4 min-h-[20px]'>
-          Add items using the creator above. At least 7 items are needed.
-        </p>
-      ) : itemCount > 13 ? (
-        <p id='list-message' className='text-sm text-gray-600 dark:text-gray-300 mb-4 min-h-[20px]'>
-          It will take longer to find the optimal layout.
-        </p>
-      ) : null}
+
+      <p id='list-message' className='text-sm text-gray-600 dark:text-gray-300 mb-4 min-h-[20px]'>
+        Add items using the creator above.{' '}
+        {itemCount >= 13 ? 'Adding more items will take longer to find the optimal layout.' : null}
+      </p>
 
       <div className='flex flex-wrap justify-between gap-2 p-3 border border-gray-300 rounded-md bg-white dark:border-gray-700 dark:bg-gray-700 shadow-sm mb-8'>
         {Object.entries(BuffType).map((value) => (

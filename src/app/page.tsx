@@ -86,15 +86,31 @@ export default function Home() {
     });
   };
   const memoizedItems = useMemo(() => items, [items]);
-  const memoizedItemsFiltered = useMemo(
-    () =>
-      items.filter((item) => {
-        // If no buff types are selected, include all items
-        if (selectedBuffTypes.size === 0) return true;
-        return selectedBuffTypes.has(item.buffType);
-      }),
-    [items, selectedBuffTypes]
-  );
+  const memoizedItemsFiltered = useMemo(() => {
+    const filteredItems = items.filter((item) => {
+      // If no buff types are selected, include all items
+      if (selectedBuffTypes.size === 0) return true;
+      return selectedBuffTypes.has(item.buffType);
+    });
+
+    // If we have less than 7 items, add empty placeholder items
+    if (filteredItems.length < 7) {
+      const emptyItems = Array(7 - filteredItems.length)
+        .fill(null)
+        .map(
+          (_, index) =>
+            ({
+              id: `empty-${index}`,
+              name: ` `,
+              buffType: BuffType.BASIC,
+              colors: ['Black', 'Black', 'Black', 'Black', 'Black', 'Black', 'Black']
+            } as Item)
+        );
+      return [...filteredItems, ...emptyItems];
+    }
+
+    return filteredItems;
+  }, [items, selectedBuffTypes]);
 
   const handleCopy = async (textToCopy: string) => {
     try {
@@ -125,7 +141,7 @@ export default function Home() {
               />
             </div>
             <div className='lg:w-1/2'>
-              <HexagonOptimalLayout itemList={memoizedItemsFiltered} />
+              <HexagonOptimalLayout itemList={memoizedItemsFiltered} hasItems={!!items.length} />
             </div>
           </div>
         </div>

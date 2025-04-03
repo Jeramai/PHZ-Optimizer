@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface HexagonOptimalLayoutProps {
   itemList: Array<Item>;
+  hasItems: boolean;
 }
 
 const HEX_SIZE = 25;
@@ -35,7 +36,7 @@ const POSITIONS = (() => {
   return positions;
 })();
 
-const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLayoutProps>) => {
+const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonly<HexagonOptimalLayoutProps>) => {
   const workerRef = useRef<Worker | null>(null);
 
   const [message, setMessage] = useState<string>('');
@@ -176,6 +177,16 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
       ADJACENCY.forEach(([posIndexA, borderA, posIndexB, borderB]) => {
         const itemA = arrangement[posIndexA];
         const itemB = arrangement[posIndexB];
+
+        // Skip connections if either border is "Black"
+        if (
+          itemA?.colors[borderA] === 'Black' ||
+          itemB?.colors[borderB] === 'Black' ||
+          itemA?.colors[borderA] !== itemB?.colors[borderB]
+        ) {
+          return;
+        }
+
         if (itemA?.colors[borderA] && itemB?.colors[borderB] && itemA.colors[borderA] === itemB.colors[borderB]) {
           const start = memoizedCalculateBorderMidpoint(POSITIONS[posIndexA], borderA, HEX_SIZE);
           const end = memoizedCalculateBorderMidpoint(POSITIONS[posIndexB], borderB, HEX_SIZE);
@@ -257,7 +268,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
           )}
         </div>
 
-        {!isLoading && arrangements?.length > 1 ? (
+        {hasItems && !isLoading && arrangements?.length > 1 ? (
           <div className='flex gap-3'>
             <button
               className='bg-gray-200 rounded-full text-gray-800 dark:bg-gray-600 dark:text-gray-200 px-3 py-1 cursor-pointer disabled:opacity-25 disabled:cursor-default'
@@ -276,22 +287,24 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
           </div>
         ) : null}
 
-        <div className='text-center'>
-          <p
-            id='layout-message'
-            className={`text-sm mt-3 min-h-[40px] ${
-              message.startsWith('Calculating')
-                ? 'text-blue-600 dark:text-blue-400'
-                : message.startsWith('Found')
-                ? 'text-green-600 dark:text-green-400'
-                : message.startsWith('Need')
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-gray-600 dark:text-gray-400'
-            }`}
-          >
-            {message}
-          </p>
-        </div>
+        {hasItems ? (
+          <div className='text-center'>
+            <p
+              id='layout-message'
+              className={`text-sm mt-3 min-h-[40px] ${
+                message.startsWith('Calculating')
+                  ? 'text-blue-600 dark:text-blue-400'
+                  : message.startsWith('Found')
+                  ? 'text-green-600 dark:text-green-400'
+                  : message.startsWith('Need')
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-gray-600 dark:text-gray-400'
+              }`}
+            >
+              {message}
+            </p>
+          </div>
+        ) : null}
       </div>
     </div>
   );

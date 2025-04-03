@@ -103,7 +103,15 @@ function calculateScore(arrangement: Item[]): number {
   }
 
   return ADJACENCY.reduce((score, [posA, borderA, posB, borderB]) => {
-    return score + (borderLookup[posA][borderA] === borderLookup[posB][borderB] ? 1 : 0);
+    const colorA = borderLookup[posA][borderA];
+    const colorB = borderLookup[posB][borderB];
+
+    // Skip if either side is black
+    if (colorA === 'Black' || colorB === 'Black') {
+      return score;
+    }
+
+    return score + (colorA === colorB ? 1 : 0);
   }, 0);
 }
 
