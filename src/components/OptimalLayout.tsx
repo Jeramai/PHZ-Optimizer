@@ -160,10 +160,10 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
 
     // Add hexagons
     svgParts.push('<g id="hexagon-group">');
-    arrangement.forEach((item, index) => {
+    arrangement.forEach((item: Item, index) => {
       if (item) {
         const pos = POSITIONS[index];
-        svgParts.push(createHexagonSVG(item.colors, pos.x, pos.y, HEX_SIZE, item.id));
+        svgParts.push(createHexagonSVG(item.colors as string[], pos.x, pos.y, HEX_SIZE, item.id));
       }
     });
     svgParts.push('</g>');
@@ -176,7 +176,7 @@ const HexagonOptimalLayout = React.memo(({ itemList }: Readonly<HexagonOptimalLa
       if (itemA?.colors[borderA] && itemB?.colors[borderB] && itemA.colors[borderA] === itemB.colors[borderB]) {
         const start = memoizedCalculateBorderMidpoint(POSITIONS[posIndexA], borderA, HEX_SIZE);
         const end = memoizedCalculateBorderMidpoint(POSITIONS[posIndexB], borderB, HEX_SIZE);
-        svgParts.push(createConnectionLine(start, end, itemA.colors[borderA]));
+        svgParts.push(createConnectionLine(start, end, itemA.colors[borderA] as string));
       }
     });
     svgParts.push('</g>');
