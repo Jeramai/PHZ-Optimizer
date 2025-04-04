@@ -126,24 +126,6 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
       svg += '>';
       svg += '<polygon points="' + points + '" class="fill-gray-200 dark:fill-gray-800"  stroke="#aaa" stroke-width="0.5"/>';
 
-      // Add borders
-      for (let i = 0; i < 6; i++) {
-        const p1 = vertices[i];
-        const p2 = vertices[(i + 1) % 6];
-        const color = colors[i] || '#000000';
-        svg += `<line 
-          class="border-line" 
-          data-border-index="${i}" 
-          x1="${p1.x}" 
-          y1="${p1.y}" 
-          x2="${p2.x}" 
-          y2="${p2.y}" 
-          stroke="${color}" 
-          stroke-width='4' 
-          stroke-linecap="round"
-        />`;
-      }
-
       // Add image
       if (image) {
         svg += `<image
@@ -158,6 +140,24 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
       // Add text if displayId is provided
       else if (displayId) {
         svg += getTextConfiguration(displayId, cx, cy, size);
+      }
+
+      // Add borders
+      for (let i = 0; i < 6; i++) {
+        const p1 = vertices[i];
+        const p2 = vertices[(i + 1) % 6];
+        const color = colors[i] || '#000000';
+        svg += `<line 
+                class="border-line" 
+                data-border-index="${i}" 
+                x1="${p1.x}" 
+                y1="${p1.y}" 
+                x2="${p2.x}" 
+                y2="${p2.y}" 
+                stroke="${color}" 
+                stroke-width='4' 
+                stroke-linecap="round"
+              />`;
       }
 
       svg += '</g>';
