@@ -211,14 +211,14 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <footer className='mb-1 text-[8pt] flex justify-center gap-3'>
+      <footer className='mb-1 text-[8pt] flex flex-col-reverse md:flex-row justify-center items-center gap-1 md:gap-3'>
         <span>
           <span>Made with {'🍕'} by </span>
           <a href='https://jeramai.github.io' target='_blank'>
             Jeram.ai
           </a>
         </span>
-        <span>|</span>
+        <span className='hidden md:block'>|</span>
         <span>
           <span>{`Donations: `}</span>
           <button onClick={() => handleCopy('0xB6506425609473dFc00eb1C4085850582438f0D0')} className='cursor-pointer'>

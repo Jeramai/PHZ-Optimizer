@@ -55,7 +55,7 @@ export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }
     <>
       <div className='p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm dark:border-gray-900 dark:bg-gray-800'>
         <h2 className='text-lg sm:text-xl font-semibold mb-5 text-gray-700 dark:text-gray-300'>
-          {selectedItem ? `Editing: "${selectedItem.name}"` : 'Create New Item'}
+          {selectedItem ? `Editing: "${name}"` : 'Create New Item'}
         </h2>
         <div className='flex flex-col mb-5'>
           <span className='block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1'>Select ToyZ</span>
