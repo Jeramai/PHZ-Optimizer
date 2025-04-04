@@ -1,4 +1,5 @@
-import { BORDER_COLORS, BuffType } from './enums';
+import { BORDER_COLORS } from './enums';
+import { Buff } from './toyz';
 
 export interface BorderColors {
   [key: string]: string;
@@ -8,7 +9,7 @@ export type ColorOption = keyof typeof BORDER_COLORS;
 export interface Item {
   id: string;
   name: string;
-  buffType: BuffType;
+  buffType: Buff;
   colors: ColorOption[];
   image?: string;
 }
