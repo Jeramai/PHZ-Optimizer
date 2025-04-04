@@ -19,6 +19,26 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+
+  /* Dark mode scrollbar styles */
+  ::-webkit-scrollbar-thumb {
+    background: #364153;
+    border: 0px none #364153;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #364153;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #101828;
+    border: 0px none #101828;
+  }
+
+  ::-webkit-scrollbar-track:hover,
+  ::-webkit-scrollbar-track:active {
+    background: #101828;
+  }
 }
 
 body {
@@ -27,35 +47,31 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Improve select dropdown styling */
-select option {
-  padding: 8px 12px;
-  margin: 4px;
-  font-weight: 500;
-  background-color: white !important;
-  color: inherit;
+/* CUSTOM SCROLLBAR */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
-
-select option:hover {
-  background-color: #f3f4f6 !important;
+::-webkit-scrollbar-button {
+  width: 0px;
+  height: 0px;
 }
-
-/* For Firefox */
-select {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+::-webkit-scrollbar-thumb {
+  background: #d1d1d1;
+  border: 0px none #d1d1d1;
+  border-radius: 50px;
 }
-
-/* For Chrome/Edge */
-select::-webkit-scrollbar {
-  width: 8px;
+::-webkit-scrollbar-thumb:hover {
+  background: #d1d1d1;
 }
-
-select::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
+  background: #e8e8e8;
+  border: 0px none #ffffff;
+}
+::-webkit-scrollbar-track:hover,
+::-webkit-scrollbar-track:active {
+  background: #e8e8e8;
+}
+::-webkit-scrollbar-corner {
   background: transparent;
-}
-
-select::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 4px;
 }

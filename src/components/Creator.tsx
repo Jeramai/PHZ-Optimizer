@@ -1,6 +1,6 @@
 import { BORDER_COLORS, BuffType, DEFAULT_COLORS } from '@/lib/enums';
-import { TOYZ } from '@/lib/toyz';
 import { memo, useCallback, useState } from 'react';
+import ToyZSelectModal from './modals/Select';
 import HexagonPreview from './Preview';
 
 type ColorOption = keyof typeof BORDER_COLORS;
@@ -172,61 +172,3 @@ const SelectBorderColor = memo(function SelectBorderColor({ color, index, handle
     </div>
   );
 });
-const ToyZSelectModal = ({
-  show,
-  onHide,
-  image,
-  setImage,
-  setName
-}: {
-  show: boolean;
-  onHide: () => void;
-  image: string;
-  setImage: (id: string) => void;
-  setName: (id: string) => void;
-}) => {
-  if (!show) return null;
-
-  return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center  p-5'>
-      <button className='fixed w-full h-full bg-black/50' onClick={(e) => e.target === e.currentTarget && onHide()} />
-      <div className='bg-white dark:bg-gray-800 px-6 py-4 rounded-lg shadow-xl w-full max-w-md max-h-full overflow-auto z-[51]'>
-        <h3 className='text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4'>Select a ToyZ</h3>
-        <div className='grid grid-cols-3 sm:grid-cols-4 gap-4'>
-          {Object.entries(TOYZ).map((toy) => {
-            const toyID = toy[0];
-            const toyData = toy[1];
-            return (
-              <button
-                key={toyID}
-                onClick={() => {
-                  setImage(toyID);
-                  setName(toyData.name);
-                  onHide();
-                }}
-                className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                  image === toyID ? 'bg-blue-100 dark:bg-blue-700 border-blue-500' : 'border-gray-300 dark:border-gray-600'
-                }`}
-              >
-                <img
-                  src={`https://assets.pixelheroes.tips/images/ToyZ/${toyID}.webp`}
-                  alt={toyData.name}
-                  className='w-16 h-16 object-contain'
-                />
-                <span className='text-xs text-gray-600 dark:text-gray-300 mt-1'>{toyData.name}</span>
-              </button>
-            );
-          })}
-        </div>
-        <div className='mt-6 flex justify-end'>
-          <button
-            onClick={onHide}
-            className='px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500'
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};

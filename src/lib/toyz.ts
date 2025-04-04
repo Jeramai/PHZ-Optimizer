@@ -1,12 +1,14 @@
 const ATTRIBUTES = ['Normal', 'Fire', 'Water', 'Earth', 'Wind', 'Light', 'Dark'];
 type Attribute = (typeof ATTRIBUTES)[number];
+
+export interface ToyZData {
+  name: string;
+  grade: string;
+  attribute?: Attribute;
+  season?: number;
+}
 interface ToyZ {
-  [key: string]: {
-    name: string;
-    grade: string;
-    attribute?: Attribute;
-    season?: number;
-  };
+  [key: string]: ToyZData;
 }
 const TOYZ: ToyZ = {
   '10000': {
