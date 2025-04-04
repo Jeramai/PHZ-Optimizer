@@ -172,18 +172,23 @@ const HexagonList = React.memo(
               grade: toyZItem.grade
             };
 
-            const buffFoundInItem =
-              selectedBuffTypes.size > 0 && !item.buffs.some((buff: Buff) => selectedBuffTypes.has(buff.type as BuffType));
-            const gradeFoundItem = selectedGradeTypes.size > 0 && !selectedGradeTypes.has(item.grade);
-            const attributeFoundInItem =
-              selectedAttributes.size > 0 && !item.buffs.some((buff: Buff) => selectedAttributes.has(buff.type as Attribute));
+            let isDisabled = selectedBuffTypes.size > 0 && selectedGradeTypes.size > 0 && selectedAttributes.size > 0;
+            if (!isDisabled) {
+              const buffFoundInItem =
+                selectedBuffTypes.size > 0 && !item.buffs.some((buff: Buff) => selectedBuffTypes.has(buff.type as BuffType));
+              const gradeFoundItem = selectedGradeTypes.size > 0 && !selectedGradeTypes.has(item.grade);
+              const attributeFoundInItem =
+                selectedAttributes.size > 0 && !item.buffs.some((buff: Buff) => selectedAttributes.has(buff.type as Attribute));
+
+              isDisabled = buffFoundInItem || gradeFoundItem || attributeFoundInItem;
+            }
 
             return (
               <HexagonItem
                 key={item.id}
                 item={item}
                 onRemoveItem={onRemoveItem}
-                disabled={buffFoundInItem || gradeFoundItem || attributeFoundInItem}
+                disabled={isDisabled}
                 isEditing={isEditing}
                 onClick={() => setIsEditing(item.id)}
               />

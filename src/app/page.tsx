@@ -136,11 +136,19 @@ export default function Home() {
 
       // See if any item.buffs.type is found in the selectedBuffTypes
       const item = TOYZ[_item.image];
-      const hasBuffType = item.buffs.some((buff: Buff) => selectedBuffTypes.has(buff.type as BuffType));
-      const hasGrade = selectedGradeTypes.has(item.grade);
-      const hasAttribute = item.buffs.some((buff: Buff) => selectedAttributes.has(buff.type as Attribute));
 
-      return hasBuffType || hasGrade || hasAttribute;
+      let isDisabled = selectedBuffTypes.size > 0 && selectedGradeTypes.size > 0 && selectedAttributes.size > 0;
+      if (!isDisabled) {
+        const buffFoundInItem =
+          selectedBuffTypes.size > 0 && !item.buffs.some((buff: Buff) => selectedBuffTypes.has(buff.type as BuffType));
+        const gradeFoundItem = selectedGradeTypes.size > 0 && !selectedGradeTypes.has(item.grade);
+        const attributeFoundInItem =
+          selectedAttributes.size > 0 && !item.buffs.some((buff: Buff) => selectedAttributes.has(buff.type as Attribute));
+
+        isDisabled = buffFoundInItem || gradeFoundItem || attributeFoundInItem;
+      }
+
+      return !isDisabled;
     });
 
     // If we have less than 7 items, add empty placeholder items
