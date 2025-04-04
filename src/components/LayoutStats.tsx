@@ -83,7 +83,7 @@ export default function LayoutStats({ data }: Readonly<{ data: Item[] }>) {
             name === 'Boss'
               ? 'text-red-600 dark:text-red-400 '
               : name === 'Skill'
-              ? 'text-orange-600 dark:text-orange-300 '
+              ? 'text-orange-500 dark:text-orange-300 '
               : name === 'All'
               ? 'text-blue-600 dark:text-blue-400 '
               : name === 'Crit D.'
