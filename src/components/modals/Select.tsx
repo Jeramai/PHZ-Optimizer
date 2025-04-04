@@ -1,4 +1,4 @@
-import { TOYZ, ToyZData } from '@/lib/toyz';
+import { Buff, TOYZ, ToyZData } from '@/lib/toyz';
 import Image from 'next/image';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -8,17 +8,18 @@ interface ToyZSelectModalProps {
   image: string;
   setImage: (id: string) => void;
   setName: (id: string) => void;
+  setBuff: (buff: Buff) => void;
 }
 interface ToyButtonProps {
   toyID: string;
   toyData: ToyZData;
   isSelected: boolean;
-  onSelect: (id: string, name: string) => void;
+  onSelect: (id: string, name: string, buff: Buff) => void;
 }
 
 const ToyButton = memo(({ toyID, toyData, isSelected, onSelect }: ToyButtonProps) => (
   <button
-    onClick={() => onSelect(toyID, toyData.name)}
+    onClick={() => onSelect(toyID, toyData.name, toyData.buff)}
     className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer duration-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${
       isSelected ? 'bg-blue-100 dark:bg-blue-700 border-blue-500' : 'border-gray-300 dark:border-gray-600'
     }`}
@@ -37,7 +38,7 @@ const ToyButton = memo(({ toyID, toyData, isSelected, onSelect }: ToyButtonProps
 
 ToyButton.displayName = 'ToyButton';
 
-const ToyZSelectModal = ({ show, onHide, image, setImage, setName }: ToyZSelectModalProps) => {
+const ToyZSelectModal = ({ show, onHide, image, setImage, setName, setBuff }: ToyZSelectModalProps) => {
   const [search, setSearch] = useState<string>('');
 
   const handleBackdropClick = useCallback(
@@ -47,9 +48,10 @@ const ToyZSelectModal = ({ show, onHide, image, setImage, setName }: ToyZSelectM
     [onHide]
   );
   const handleToySelect = useCallback(
-    (id: string, name: string) => {
+    (id: string, name: string, buff: Buff) => {
       setImage(id);
       setName(name);
+      setBuff(buff);
       onHide();
     },
     [setImage, setName, onHide]

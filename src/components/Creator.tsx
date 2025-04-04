@@ -1,4 +1,5 @@
-import { BORDER_COLORS, BuffType, DEFAULT_COLORS } from '@/lib/enums';
+import { BORDER_COLORS, DEFAULT_COLORS } from '@/lib/enums';
+import { Buff } from '@/lib/toyz';
 import { Item } from '@/lib/types';
 import { memo, useCallback, useEffect, useState } from 'react';
 import ToyZSelectModal from './modals/Select';
@@ -8,7 +9,7 @@ type ColorOption = keyof typeof BORDER_COLORS;
 
 interface HexagonCreatorProps {
   selectedItem: Item | undefined;
-  onAddItem: (name: string, image: string, buffType: BuffType, colors: ColorOption[]) => void;
+  onAddItem: (name: string, image: string, buffType: Buff, colors: ColorOption[]) => void;
   setIsEditing: (b: boolean) => void;
 }
 interface SelectBorderColorProps {
@@ -20,7 +21,7 @@ interface SelectBorderColorProps {
 export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }: Readonly<HexagonCreatorProps>) {
   const [name, setName] = useState<string>('');
   const [image, setImage] = useState<string>('');
-  const [buffType, setBuffType] = useState<BuffType>(BuffType.BASIC);
+  const [buffType, setBuffType] = useState<Buff>('Basic');
   const [selectedColors, setSelectedColors] = useState<ColorOption[]>([...DEFAULT_COLORS]);
   const [toyZSelectModal, setToyZSelectModal] = useState<boolean>(false);
 
@@ -50,7 +51,7 @@ export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }
     } else {
       setName('');
       setImage('');
-      setBuffType(BuffType.BASIC);
+      setBuffType('Basic');
       setSelectedColors([...DEFAULT_COLORS]);
     }
   }, [selectedItem]);
@@ -70,44 +71,8 @@ export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }
               dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
             >
-              Select ToyZ
+              {name || 'Select ToyZ'}
             </button>
-          </div>
-        </div>
-
-        <div className='flex flex-col mb-5'>
-          <label htmlFor='buffType' className='block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1'>
-            Buff Type
-          </label>
-          <div className='relative w-full'>
-            <select
-              id='buffType'
-              value={buffType}
-              onChange={(e) => setBuffType(e.target.value as BuffType)}
-              className='appearance-none w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 
-              dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer'
-            >
-              {Object.values(BuffType).map((type) => (
-                <option
-                  key={type}
-                  value={type}
-                  className='text-gray-900 bg-white hover:bg-gray-100 dark:text-gray-200 dark:bg-gray-800 hover:dark:bg-gray-700'
-                  style={{ color: '#1e2939' }}
-                >
-                  {type}
-                </option>
-              ))}
-            </select>
-            <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300'>
-              <svg className='h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'>
-                <path
-                  fillRule='evenodd'
-                  d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
-                  clipRule='evenodd'
-                />
-              </svg>
-            </div>
           </div>
         </div>
 
@@ -150,6 +115,7 @@ export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }
         image={image}
         setImage={setImage}
         setName={setName}
+        setBuff={setBuffType}
       />
     </>
   );

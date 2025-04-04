@@ -1,3 +1,4 @@
+import { Buff } from './toyz';
 import { BorderColors } from './types';
 
 const BORDER_COLORS: BorderColors = {
@@ -26,11 +27,14 @@ const ADJACENCY = [
   [6, 1, 1, 4] // Top-Left to Top-Right
 ] as const;
 
-export enum BuffType {
-  AS = 'Attack Speed',
-  MELEE = 'Melee',
-  RANGED = 'Ranged',
-  BASIC = 'Basic'
-}
+const BUFFS: Record<string, Buff> = {
+  ATK_SPD: 'Atk Spd',
+  MELEE: 'Melee',
+  RANGED: 'Ranged',
+  BASIC: 'Basic',
+  BOSS: 'Boss',
+  SKILL: 'Skill',
+  ALL: 'All'
+} as const;
 
-export { ADJACENCY, BORDER_COLORS, DEFAULT_COLORS };
+export { ADJACENCY, BORDER_COLORS, BUFFS, DEFAULT_COLORS };

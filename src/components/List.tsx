@@ -1,4 +1,5 @@
-import { BuffType } from '@/lib/enums';
+import { BUFFS } from '@/lib/enums';
+import { Buff } from '@/lib/toyz';
 import { Item } from '@/lib/types';
 import React from 'react';
 import HexagonPreview from './Preview';
@@ -19,8 +20,8 @@ interface HexagonItemProps {
 interface HexagonListProps {
   items: Item[];
   onRemoveItem: (id: string) => void;
-  selectedBuffTypes: Set<BuffType>;
-  handleBuffTypeChange: (buffType: BuffType) => void;
+  selectedBuffTypes: Set<Buff>;
+  handleBuffTypeChange: (buffType: Buff) => void;
   isEditing: boolean | string;
   setIsEditing: (id: string) => void;
 }
@@ -62,7 +63,7 @@ const HexagonList = React.memo(
         </p>
 
         <div className='flex flex-wrap justify-between gap-2 p-3 border border-gray-300 rounded-md bg-white dark:border-gray-700 dark:bg-gray-700 shadow-sm mb-8'>
-          {Object.entries(BuffType).map((value) => (
+          {Object.entries(BUFFS).map((value) => (
             <label
               key={value[0]}
               className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 hover:dark:bg-gray-800 px-2 py-1 rounded'

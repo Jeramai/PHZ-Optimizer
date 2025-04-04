@@ -4,7 +4,7 @@ import HexagonCreator from '@/components/Creator';
 import HexagonList from '@/components/List';
 import HexagonOptimalLayout from '@/components/OptimalLayout';
 import ThemeToggle from '@/components/ThemeToggle';
-import { BuffType } from '@/lib/enums';
+import { Buff } from '@/lib/toyz';
 import { ColorOption, Item } from '@/lib/types';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -57,7 +57,7 @@ export default function Home() {
   }, [items, debouncedSaveToStorage]);
 
   const handleAddItem = useCallback(
-    (name: string, image: string, buffType: BuffType, colors: ColorOption[]) => {
+    (name: string, image: string, buffType: Buff, colors: ColorOption[]) => {
       //  Update the item
       if (isEditing) {
         setItems((prevItems) => {
@@ -97,8 +97,8 @@ export default function Home() {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id));
   }, []);
 
-  const [selectedBuffTypes, setSelectedBuffTypes] = useState<Set<BuffType>>(new Set());
-  const handleBuffTypeChange = (buffType: BuffType) => {
+  const [selectedBuffTypes, setSelectedBuffTypes] = useState<Set<Buff>>(new Set());
+  const handleBuffTypeChange = (buffType: Buff) => {
     setSelectedBuffTypes((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(buffType)) {
@@ -126,7 +126,7 @@ export default function Home() {
             ({
               id: `empty-${index}`,
               name: ` `,
-              buffType: BuffType.BASIC,
+              buffType: 'Basic',
               colors: ['Black', 'Black', 'Black', 'Black', 'Black', 'Black', 'Black']
             } as Item)
         );
