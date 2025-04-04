@@ -19,26 +19,6 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-
-  /* Dark mode scrollbar styles */
-  ::-webkit-scrollbar-thumb {
-    background: #364153;
-    border: 0px none #364153;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #364153;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #101828;
-    border: 0px none #101828;
-  }
-
-  ::-webkit-scrollbar-track:hover,
-  ::-webkit-scrollbar-track:active {
-    background: #101828;
-  }
 }
 
 body {
@@ -74,4 +54,26 @@ body {
 }
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+/* Dark mode scrollbar styles */
+.dark::-webkit-scrollbar-thumb,
+.dark ::-webkit-scrollbar-thumb {
+  background: #364153;
+  border: 0px none #364153;
+}
+.dark::-webkit-scrollbar-thumb:hover,
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #364153;
+}
+.dark::-webkit-scrollbar-track,
+.dark ::-webkit-scrollbar-track {
+  background: #101828;
+  border: 0px none #101828;
+}
+.dark::-webkit-scrollbar-track:hover,
+.dark ::-webkit-scrollbar-track:hover,
+.dark::-webkit-scrollbar-track:active,
+.dark ::-webkit-scrollbar-track:active {
+  background: #101828;
 }

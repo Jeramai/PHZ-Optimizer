@@ -61,7 +61,7 @@ const ToyZSelectModal = ({ show, onHide, image, setImage, setName }: ToyZSelectM
 
       <div className='relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh] z-[51]'>
         {/* Fixed Header */}
-        <div className='flex justify-between px-6 py-4 border-b dark:border-gray-700'>
+        <div className='flex justify-between px-6 py-4 border-b border-gray-300 dark:border-gray-700'>
           <h3 className='text-lg font-semibold text-gray-700 dark:text-gray-200'>Select a ToyZ</h3>
           <button
             onClick={onHide}
@@ -92,7 +92,7 @@ const ToyZSelectModal = ({ show, onHide, image, setImage, setName }: ToyZSelectM
         </div>
 
         {/* Fixed Footer */}
-        <div className='px-6 py-4 border-t dark:border-gray-700'>
+        <div className='px-6 py-4 border-t border-gray-300 dark:border-gray-700'>
           <div className='flex justify-end'>
             <button
               onClick={onHide}
