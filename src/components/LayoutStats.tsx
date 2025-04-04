@@ -19,7 +19,13 @@ export default function LayoutStats({ data }: Readonly<{ data: Item[] }>) {
     if (!data?.length) return { statsResult: [], hexResult: [] };
 
     const stats = new Map<BuffType | Attribute, number>();
-    const hex = new Map<BuffType | Attribute, number>();
+    const hex = new Map<BuffType | Attribute, number>([
+      ['Basic', 0],
+      ['Boss', 0],
+      ['Skill', 0],
+      ['All', 0],
+      ['Crit D.', 0]
+    ]);
 
     // Process item buffs
     data.forEach((element) => {
