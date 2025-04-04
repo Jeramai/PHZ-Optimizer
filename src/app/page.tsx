@@ -4,7 +4,7 @@ import HexagonCreator from '@/components/Creator';
 import HexagonList from '@/components/List';
 import HexagonOptimalLayout from '@/components/OptimalLayout';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Buff } from '@/lib/toyz';
+import { Buff, Grade, TOYZ } from '@/lib/toyz';
 import { ColorOption, Item } from '@/lib/types';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -105,13 +105,27 @@ export default function Home() {
       return newSet;
     });
   };
+  const [selectedGradeTypes, setSelectedGradeTypes] = useState<Set<Grade>>(new Set());
+  const handleGradeTypeChange = (gradeType: Grade) => {
+    setSelectedGradeTypes((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(gradeType)) {
+        newSet.delete(gradeType);
+      } else {
+        newSet.add(gradeType);
+      }
+      return newSet;
+    });
+  };
 
   const memoizedItems = useMemo(() => items, [items]);
   const memoizedItemsFiltered = useMemo(() => {
-    const filteredItems = items.filter((item) => {
+    const filteredItems = items.filter((_item) => {
+      const item = TOYZ[_item.image];
+
       // If no buff types are selected, include all items
-      if (selectedBuffTypes.size === 0) return true;
-      return selectedBuffTypes.has(item.buff ?? 'Basic');
+      if (selectedBuffTypes.size === 0 && selectedGradeTypes.size === 0) return true;
+      return selectedBuffTypes.has(item.buff ?? 'Basic') || selectedGradeTypes.has(item.grade ?? 'Common');
     });
 
     // If we have less than 7 items, add empty placeholder items
@@ -132,7 +146,7 @@ export default function Home() {
     }
 
     return filteredItems;
-  }, [items, selectedBuffTypes]);
+  }, [items, selectedBuffTypes, selectedGradeTypes]);
 
   const handleCopy = async (textToCopy: string) => {
     try {
@@ -160,6 +174,8 @@ export default function Home() {
                 onRemoveItem={handleRemoveItem}
                 selectedBuffTypes={selectedBuffTypes}
                 handleBuffTypeChange={handleBuffTypeChange}
+                selectedGradeTypes={selectedGradeTypes}
+                handleGradeTypeChange={handleGradeTypeChange}
                 isEditing={isEditing}
                 setIsEditing={setIsEditing}
               />

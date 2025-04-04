@@ -135,7 +135,7 @@ export default function HexagonPreview({
     const groupIdAttr: string = text !== '' ? `data-item-id="${text}"` : '';
 
     return `<g class="hexagon-item" ${groupIdAttr}>${basePolygon}${imageElement || textElement}${borders}</g>`;
-  }, [vertices, colors, size, text, image, lineThickness]);
+  }, [vertices, colors, size, text, image, lineThickness, backgroundColor]);
 
   return (
     <svg

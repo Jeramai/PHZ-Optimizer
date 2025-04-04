@@ -189,7 +189,7 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
       svg += '</g>';
       return svg;
     };
-  }, [getTextConfiguration]);
+  }, [getTextConfiguration, getBackgroundColor]);
   const drawLayout = useCallback(
     (arrangement: Array<Item>) => {
       if (!arrangement || arrangement.length !== REQUIRED_ITEMS_FOR_LAYOUT) {

@@ -1,4 +1,4 @@
-import { Buff } from './toyz';
+import { Buff, Grade } from './toyz';
 import { BorderColors } from './types';
 
 const BORDER_COLORS: BorderColors = {
@@ -37,4 +37,12 @@ const BUFFS: Record<string, Buff> = {
   ALL: 'All'
 } as const;
 
-export { ADJACENCY, BORDER_COLORS, BUFFS, DEFAULT_COLORS };
+const GRADES: Record<string, Grade> = {
+  COMMON: 'Common',
+  RARE: 'Rare',
+  EPIC: 'Epic',
+  LEGENDARY: 'Legendary',
+  MYTHIC: 'Mythic'
+} as const;
+
+export { ADJACENCY, BORDER_COLORS, BUFFS, DEFAULT_COLORS, GRADES };

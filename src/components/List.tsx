@@ -1,7 +1,7 @@
-import { BUFFS } from '@/lib/enums';
-import { Buff, TOYZ } from '@/lib/toyz';
+import { BUFFS, GRADES } from '@/lib/enums';
+import { Buff, Grade, TOYZ } from '@/lib/toyz';
 import { Item } from '@/lib/types';
-import React from 'react';
+import React, { useState } from 'react';
 import HexagonPreview from './Preview';
 
 interface RemoveButtonProps {
@@ -22,6 +22,8 @@ interface HexagonListProps {
   onRemoveItem: (id: string) => void;
   selectedBuffTypes: Set<Buff>;
   handleBuffTypeChange: (buffType: Buff) => void;
+  selectedGradeTypes: Set<Grade>;
+  handleGradeTypeChange: (buffType: Grade) => void;
   isEditing: boolean | string;
   setIsEditing: (id: string) => void;
 }
@@ -43,14 +45,25 @@ RemoveButton.displayName = 'RemoveButton';
 
 const HexagonItem = React.memo(({ item, onRemoveItem, disabled, isEditing, onClick }: HexagonItemProps) => (
   <div className={`item-preview-container relative ${disabled ? 'grayscale-75' : ''}`}>
-    <HexagonPreview colors={item.colors} text={item.name || item.id} image={item.image} grade={item.grade} onClick={onClick} />
+    <HexagonPreview colors={item.colors} text={item.name ?? item.id} image={item.image} grade={item.grade} onClick={onClick} />
     {isEditing === item.id ? null : <RemoveButton id={item.id} onRemoveItem={onRemoveItem} />}
   </div>
 ));
 HexagonItem.displayName = 'HexagonItem';
 
 const HexagonList = React.memo(
-  ({ items, onRemoveItem, selectedBuffTypes, handleBuffTypeChange, isEditing, setIsEditing }: HexagonListProps) => {
+  ({
+    items,
+    onRemoveItem,
+    selectedBuffTypes,
+    handleBuffTypeChange,
+    selectedGradeTypes,
+    handleGradeTypeChange,
+    isEditing,
+    setIsEditing
+  }: HexagonListProps) => {
+    const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(true);
+
     const itemCount = items.length;
 
     return (
@@ -62,22 +75,65 @@ const HexagonList = React.memo(
           {itemCount >= 13 ? 'Adding more items will take longer to find the optimal layout.' : null}
         </p>
 
-        <div className='flex flex-wrap justify-between gap-2 p-3 border border-gray-300 rounded-md bg-white dark:border-gray-700 dark:bg-gray-700 shadow-sm mb-8'>
-          {Object.entries(BUFFS).map((value) => (
-            <label
-              key={value[0]}
-              className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 hover:dark:bg-gray-800 px-2 py-1 rounded'
+        <div className='flex flex-col justify-between gap-2 p-1 border border-gray-300 rounded-md bg-white dark:border-gray-700 dark:bg-gray-700 shadow-sm mb-8'>
+          <div className='flex flex-col gap-2'>
+            <button
+              onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+              className='flex items-center justify-between w-full p-2 hover:bg-gray-50 hover:dark:bg-gray-800 rounded cursor-pointer duration-300'
             >
-              <input
-                type='checkbox'
-                name={value[0]}
-                checked={selectedBuffTypes.has(value[1])}
-                onChange={() => handleBuffTypeChange(value[1])}
-                className='w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500 focus:ring-2'
-              />
-              <span className='text-sm text-gray-700 dark:text-gray-200 select-none'>{value[1]}</span>
-            </label>
-          ))}
+              <span className='font-medium'>Filters</span>
+              <span
+                className='transform transition-transform duration-200'
+                style={{ transform: isFiltersOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              >
+                ▼
+              </span>
+            </button>
+
+            {isFiltersOpen && (
+              <>
+                <hr />
+
+                <div className='flex flex-wrap gap-2'>
+                  {Object.entries(BUFFS).map((value) => (
+                    <label
+                      key={value[0]}
+                      className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 hover:dark:bg-gray-800 px-2 py-1 rounded duration-300'
+                    >
+                      <input
+                        type='checkbox'
+                        name={value[0]}
+                        checked={selectedBuffTypes.has(value[1])}
+                        onChange={() => handleBuffTypeChange(value[1])}
+                        className='w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500 focus:ring-2'
+                      />
+                      <span className='text-sm text-gray-700 dark:text-gray-200 select-none'>{value[1]}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <hr />
+
+                <div className='flex flex-wrap gap-2'>
+                  {Object.entries(GRADES).map((value) => (
+                    <label
+                      key={value[0]}
+                      className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 hover:dark:bg-gray-800 px-2 py-1 rounded duration-300'
+                    >
+                      <input
+                        type='checkbox'
+                        name={value[0]}
+                        checked={selectedGradeTypes.has(value[1])}
+                        onChange={() => handleGradeTypeChange(value[1])}
+                        className='w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500 focus:ring-2'
+                      />
+                      <span className='text-sm text-gray-700 dark:text-gray-200 select-none'>{value[1]}</span>
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         <div className={GRID_CLASSES}>
@@ -97,7 +153,10 @@ const HexagonList = React.memo(
                 key={item.id}
                 item={item}
                 onRemoveItem={onRemoveItem}
-                disabled={selectedBuffTypes.size > 0 && !selectedBuffTypes.has(item.buff)}
+                disabled={
+                  (selectedBuffTypes.size > 0 && !selectedBuffTypes.has(item.buff)) ||
+                  (selectedGradeTypes.size > 0 && !selectedGradeTypes.has(item.grade))
+                }
                 isEditing={isEditing}
                 onClick={() => setIsEditing(item.id)}
               />
