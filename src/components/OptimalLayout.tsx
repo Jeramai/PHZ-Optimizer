@@ -96,22 +96,22 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
       const titleElement = text.length > maxLength ? `<title>${text}</title>` : '';
 
       return `<g>
-      ${titleElement}
-      <text 
-        x="${cx}" 
-        y="${cy}" 
-        font-size="${fontSize}px" 
-        fill="#333" 
-        text-anchor="middle" 
-        dominant-baseline="middle"
-        class="fill-gray-900 dark:fill-gray-100"
-        font-weight="bold">${truncatedText}</text>
-    </g>`;
+                ${titleElement}
+                <text 
+                  x="${cx}" 
+                  y="${cy}" 
+                  font-size="${fontSize}px" 
+                  fill="#333" 
+                  text-anchor="middle" 
+                  dominant-baseline="middle"
+                  class="fill-gray-900 dark:fill-gray-100"
+                  font-weight="bold">${truncatedText}</text>
+              </g>`;
     },
     []
   );
   const createHexagonSVG = useMemo(() => {
-    return (colors: string[], cx: number, cy: number, size: number, displayId?: string) => {
+    return (colors: string[], cx: number, cy: number, size: number, displayId: string | undefined, image: string | undefined) => {
       const vertices = HEX_VERTICES.map(({ cos, sin }) => ({
         x: cx + size * cos,
         y: cy + size * sin
@@ -123,7 +123,8 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
       if (displayId !== undefined) {
         svg += ' data-item-id="' + displayId + '"';
       }
-      svg += '><polygon points="' + points + '" class="fill-gray-200 dark:fill-gray-800"  stroke="#aaa" stroke-width="0.5"/>';
+      svg += '>';
+      svg += '<polygon points="' + points + '" class="fill-gray-200 dark:fill-gray-800"  stroke="#aaa" stroke-width="0.5"/>';
 
       // Add borders
       for (let i = 0; i < 6; i++) {
@@ -143,8 +144,19 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
         />`;
       }
 
+      // Add image
+      if (image) {
+        svg += `<image
+                  x="${cx - size * 0.75}"
+                  y="${cy - size * 0.675}"
+                  width="${size * 1.5}"
+                  height="${size * 1.5}"
+                  href="https://assets.pixelheroes.tips/images/ToyZ/${image}.webp"
+                  class="fill-gray-200 dark:fill-gray-800"
+                />`;
+      }
       // Add text if displayId is provided
-      if (displayId !== undefined) {
+      else if (displayId) {
         svg += getTextConfiguration(displayId, cx, cy, size);
       }
 
@@ -167,7 +179,7 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
       arrangement.forEach((item: Item, index) => {
         if (item) {
           const pos = POSITIONS[index];
-          svgParts.push(createHexagonSVG(item.colors as string[], pos.x, pos.y, HEX_SIZE, item.name || item.id));
+          svgParts.push(createHexagonSVG(item.colors as string[], pos.x, pos.y, HEX_SIZE, item.name || item.id, item.image));
         }
       });
       svgParts.push('</g>');

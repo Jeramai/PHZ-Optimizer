@@ -10,6 +10,7 @@ export interface Item {
   name: string;
   buffType: BuffType;
   colors: ColorOption[];
+  image?: string;
 }
 export interface LayoutResult {
   message: string;

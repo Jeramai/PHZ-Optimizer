@@ -55,12 +55,13 @@ export default function Home() {
   }, [items, debouncedSaveToStorage]);
 
   const handleAddItem = useCallback(
-    (name: string, buffType: BuffType, colors: ColorOption[]) => {
+    (name: string, image: string, buffType: BuffType, colors: ColorOption[]) => {
       setItems((prevItems) => [
         ...prevItems,
         {
           id: generateUniqueId(),
-          name: name,
+          name,
+          image,
           buffType,
           colors
         }

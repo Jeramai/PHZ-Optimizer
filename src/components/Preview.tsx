@@ -13,6 +13,7 @@ interface HexagonPreviewProps {
   colors: ColorOption[];
   size?: number;
   text?: string;
+  image?: string;
   lineThickness?: number;
 }
 
@@ -20,6 +21,7 @@ export default function HexagonPreview({
   colors,
   size = DEFAULT_SIZE,
   text = '',
+  image = '',
   lineThickness = 4
 }: Readonly<HexagonPreviewProps>) {
   // Memoize vertices calculation
@@ -90,9 +92,21 @@ export default function HexagonPreview({
       .join('');
 
     const textElement: string = text ? getTextConfiguration(text, size) : '';
+
+    const imageElement: string = image
+      ? `<image 
+            x="${size * 0.2}"
+            y="${size * 0.2}"
+            width="${size * 1.6}"
+            height="${size * 1.6}"
+            href="https://assets.pixelheroes.tips/images/ToyZ/${image}.webp" 
+            class="z-0"
+          />`
+      : '';
+
     const groupIdAttr: string = text !== '' ? `data-item-id="${text}"` : '';
 
-    return `<g class="hexagon-item" ${groupIdAttr}>${basePolygon}${borders}${textElement}</g>`;
+    return `<g class="hexagon-item" ${groupIdAttr}>${basePolygon}${imageElement || textElement}${borders}</g>`;
   }, [vertices, colors, size, text, lineThickness]);
 
   return <svg viewBox={`0 0 ${size * 2} ${size * 2}`} dangerouslySetInnerHTML={{ __html: hexagonSVG }} />;
