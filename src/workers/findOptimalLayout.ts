@@ -115,32 +115,52 @@ function calculateScore(arrangement: Item[]): number {
   }, 0);
 }
 
-async function findOptimalLayout(itemList: Item[]): Promise<LayoutResult> {
+// Add a new parameter to specify the forced item
+async function findOptimalLayout(itemList: Item[], forcedItem?: Item): Promise<LayoutResult> {
   if (itemList.length < REQUIRED_ITEMS_FOR_LAYOUT) {
     return { message: `Need at least ${REQUIRED_ITEMS_FOR_LAYOUT} items.` };
   }
 
+  // If we have a forced item, remove it from the item list if it exists there
+  let workingItemList = [...itemList];
+  if (forcedItem) {
+    workingItemList = workingItemList.filter((item) => item !== forcedItem);
+    if (workingItemList.length < REQUIRED_ITEMS_FOR_LAYOUT - 1) {
+      return { message: `Need at least ${REQUIRED_ITEMS_FOR_LAYOUT - 1} additional items.` };
+    }
+  }
+
   let overallBestScore = -1;
-  let bestArrangements: Item[][] = []; // Array to store all best arrangements
+  let bestArrangements: Item[][] = [];
   let permutationsChecked = 0;
   const startTime = Date.now();
 
   // Process combinations in chunks
-  for (const combinationChunk of combinationsInChunks(itemList, REQUIRED_ITEMS_FOR_LAYOUT)) {
+  for (const combinationChunk of combinationsInChunks(
+    workingItemList,
+    forcedItem ? REQUIRED_ITEMS_FOR_LAYOUT - 1 : REQUIRED_ITEMS_FOR_LAYOUT
+  )) {
     for (const combination of combinationChunk) {
+      // If we have a forced item, add it at the beginning of each combination
+      const fullCombination = forcedItem ? [forcedItem, ...combination] : combination;
+
+      // Only permute positions 1-6 if we have a forced item
+      const itemsToPermute = forcedItem ? fullCombination.slice(1) : fullCombination;
+
       // Process permutations in chunks
-      for (const permutationChunk of permutationsInChunks(combination)) {
+      for (const permutationChunk of permutationsInChunks(itemsToPermute)) {
         for (const permutation of permutationChunk) {
+          // Reconstruct the full arrangement with the forced item
+          const fullArrangement = forcedItem ? [forcedItem, ...permutation] : permutation;
+
           permutationsChecked++;
-          const currentScore = calculateScore(permutation);
+          const currentScore = calculateScore(fullArrangement);
 
           if (currentScore > overallBestScore) {
-            // New best score found, clear previous arrangements
             overallBestScore = currentScore;
-            bestArrangements = [[...permutation]];
+            bestArrangements = [[...fullArrangement]];
           } else if (currentScore === overallBestScore) {
-            // Equal to best score, add to arrangements
-            bestArrangements.push([...permutation]);
+            bestArrangements.push([...fullArrangement]);
           }
 
           // Report progress
@@ -176,12 +196,12 @@ async function findOptimalLayout(itemList: Item[]): Promise<LayoutResult> {
       };
 }
 
-// Web Worker implementation
+// Update the Web Worker implementation
 self.onmessage = async function (e) {
-  const { itemList, requestId } = e.data;
+  const { itemList, forcedItem, requestId } = e.data;
 
   try {
-    const result = await findOptimalLayout(itemList);
+    const result = await findOptimalLayout(itemList, forcedItem);
     self.postMessage({ ...result, requestId });
   } catch (error) {
     self.postMessage({

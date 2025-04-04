@@ -206,7 +206,7 @@ export default function Home() {
               />
             </div>
             <div className='lg:w-1/2'>
-              <HexagonOptimalLayout itemList={memoizedItemsFiltered} hasItems={!!items.length} />
+              <HexagonOptimalLayout itemList={memoizedItemsFiltered} hasItems={!!items.length} forcedItem={selectedItem} />
             </div>
           </div>
         </div>
