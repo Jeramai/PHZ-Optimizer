@@ -1,3 +1,4 @@
+import { ADJACENCY } from '@/lib/enums';
 import { Attribute, BuffType, TOYZ } from '@/lib/toyz';
 import { Item } from '@/lib/types';
 import { useMemo } from 'react';
@@ -14,6 +15,41 @@ export default function LayoutStats({ data }: Readonly<{ data: Item[] }>) {
         if (i === 0 || j % 2 === 0) {
           const { type, amount } = buff;
           acc.set(type, (acc.get(type) ?? 0) + amount);
+        }
+      });
+
+      // Add bonuses for matching hexes
+      ADJACENCY.forEach(([posIndexA, borderA, posIndexB, borderB]) => {
+        const itemA = data[posIndexA];
+        const itemB = data[posIndexB];
+
+        // Skip connections if either border is "Black"
+        if (
+          itemA?.colors[borderA] === 'Black' ||
+          itemB?.colors[borderB] === 'Black' ||
+          itemA?.colors[borderA] !== itemB?.colors[borderB]
+        ) {
+          return;
+        }
+
+        if (itemA?.colors[borderA] && itemB?.colors[borderB] && itemA.colors[borderA] === itemB.colors[borderB]) {
+          switch (itemA.colors[borderA]) {
+            case 'Grey':
+              acc.set('Basic', (acc.get('Basic') ?? 0) + 3);
+              break;
+            case 'Red':
+              acc.set('Boss', (acc.get('Boss') ?? 0) + 2);
+              break;
+            case 'Orange':
+              acc.set('Skill', (acc.get('Skill') ?? 0) + 2);
+              break;
+            case 'Blue':
+              acc.set('All', (acc.get('All') ?? 0) + 2);
+              break;
+            case 'Purple':
+              acc.set('Crit D.', (acc.get('Crit D.') ?? 0) + 2);
+              break;
+          }
         }
       });
 
