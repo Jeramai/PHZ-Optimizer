@@ -54,7 +54,7 @@ const ToyZSelectModal = ({ show, onHide, image, setImage, setName, setBuff }: To
       setBuff(buff);
       onHide();
     },
-    [setImage, setName, onHide]
+    [setImage, setName, setBuff, onHide]
   );
 
   const lowerSearch = useMemo(() => search.toLowerCase(), [search]);
