@@ -4,7 +4,7 @@ import HexagonCreator from '@/components/Creator';
 import HexagonList from '@/components/List';
 import HexagonOptimalLayout from '@/components/OptimalLayout';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Buff, Grade, TOYZ } from '@/lib/toyz';
+import { Attribute, Buff, BuffType, Grade, TOYZ } from '@/lib/toyz';
 import { ColorOption, Item } from '@/lib/types';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -17,9 +17,7 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState<boolean | string>(false);
   const selectedItem = items.find((item) => item.id === isEditing) || undefined;
 
-  const generateUniqueId = useCallback(() => {
-    return crypto.randomUUID();
-  }, []);
+  const generateUniqueId = useCallback(() => crypto.randomUUID(), []);
 
   // Create the save function outside of debounce
   const saveToStorage = useCallback((items: Item[]) => {
@@ -93,8 +91,8 @@ export default function Home() {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id));
   }, []);
 
-  const [selectedBuffTypes, setSelectedBuffTypes] = useState<Set<Buff>>(new Set());
-  const handleBuffTypeChange = (buffType: Buff) => {
+  const [selectedBuffTypes, setSelectedBuffTypes] = useState<Set<BuffType>>(new Set());
+  const handleBuffTypeChange = (buffType: BuffType) => {
     setSelectedBuffTypes((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(buffType)) {
@@ -117,15 +115,32 @@ export default function Home() {
       return newSet;
     });
   };
+  const [selectedAttributes, setSelectedAttributes] = useState<Set<Attribute>>(new Set());
+  const handleAttributeChange = (attribute: Attribute) => {
+    setSelectedAttributes((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(attribute)) {
+        newSet.delete(attribute);
+      } else {
+        newSet.add(attribute);
+      }
+      return newSet;
+    });
+  };
 
   const memoizedItems = useMemo(() => items, [items]);
   const memoizedItemsFiltered = useMemo(() => {
     const filteredItems = items.filter((_item) => {
-      const item = TOYZ[_item.image];
-
       // If no buff types are selected, include all items
-      if (selectedBuffTypes.size === 0 && selectedGradeTypes.size === 0) return true;
-      return selectedBuffTypes.has(item.buff ?? 'Basic') || selectedGradeTypes.has(item.grade ?? 'Common');
+      if (selectedBuffTypes.size === 0 && selectedGradeTypes.size === 0 && selectedAttributes.size === 0) return true;
+
+      // See if any item.buffs.type is found in the selectedBuffTypes
+      const item = TOYZ[_item.image];
+      const hasBuffType = item.buffs.some((buff: Buff) => selectedBuffTypes.has(buff.type as BuffType));
+      const hasGrade = selectedGradeTypes.has(item.grade);
+      const hasAttribute = item.buffs.some((buff: Buff) => selectedAttributes.has(buff.type as Attribute));
+
+      return hasBuffType || hasGrade || hasAttribute;
     });
 
     // If we have less than 7 items, add empty placeholder items
@@ -146,7 +161,7 @@ export default function Home() {
     }
 
     return filteredItems;
-  }, [items, selectedBuffTypes, selectedGradeTypes]);
+  }, [items, selectedBuffTypes, selectedGradeTypes, selectedAttributes]);
 
   const handleCopy = async (textToCopy: string) => {
     try {
@@ -176,6 +191,8 @@ export default function Home() {
                 handleBuffTypeChange={handleBuffTypeChange}
                 selectedGradeTypes={selectedGradeTypes}
                 handleGradeTypeChange={handleGradeTypeChange}
+                selectedAttributes={selectedAttributes}
+                handleAttributeChange={handleAttributeChange}
                 isEditing={isEditing}
                 setIsEditing={setIsEditing}
               />

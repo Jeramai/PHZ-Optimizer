@@ -1,4 +1,4 @@
-import { Buff, Grade } from './toyz';
+import { Attribute, BuffType, Grade } from './toyz';
 import { BorderColors } from './types';
 
 const BORDER_COLORS: BorderColors = {
@@ -27,14 +27,16 @@ const ADJACENCY = [
   [6, 1, 1, 4] // Top-Left to Top-Right
 ] as const;
 
-const BUFFS: Record<string, Buff> = {
+const BUFFS: Record<string, BuffType> = {
   ATK_SPD: 'Atk Spd',
   MELEE: 'Melee',
   RANGED: 'Ranged',
   BASIC: 'Basic',
   BOSS: 'Boss',
   SKILL: 'Skill',
-  ALL: 'All'
+  ALL: 'All',
+  CRIT_D: 'Crit D.',
+  CRIT_P: 'Crit %'
 } as const;
 
 const GRADES: Record<string, Grade> = {
@@ -45,4 +47,19 @@ const GRADES: Record<string, Grade> = {
   MYTHIC: 'Mythic'
 } as const;
 
-export { ADJACENCY, BORDER_COLORS, BUFFS, DEFAULT_COLORS, GRADES };
+const ATTRIBUTES: Record<string, Attribute> = {
+  NORMAL: 'Normal',
+  FIRE: 'Fire',
+  WATER: 'Water',
+  EARTH: 'Earth',
+  WIND: 'Wind',
+  LIGHT: 'Light',
+  DARK: 'Dark',
+  PLANT: 'Plant',
+  ELECTRIC: 'Electric',
+  ICE: 'Ice',
+  GROUND: 'Ground',
+  POISON: 'Poison'
+} as const;
+
+export { ADJACENCY, ATTRIBUTES, BORDER_COLORS, BUFFS, DEFAULT_COLORS, GRADES };
