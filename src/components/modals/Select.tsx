@@ -1,4 +1,5 @@
 import { TOYZ, ToyZData } from '@/lib/toyz';
+import Image from 'next/image';
 import { memo, useCallback } from 'react';
 
 interface ToyZSelectModalProps {
@@ -22,11 +23,13 @@ const ToyButton = memo(({ toyID, toyData, isSelected, onSelect }: ToyButtonProps
       isSelected ? 'bg-blue-100 dark:bg-blue-700 border-blue-500' : 'border-gray-300 dark:border-gray-600'
     }`}
   >
-    <img
+    <Image
       src={`https://assets.pixelheroes.tips/images/ToyZ/${toyID}.webp`}
       alt={toyData.name}
-      className='w-16 h-16 object-contain'
+      className='object-contain'
       loading='lazy'
+      width={64}
+      height={64}
     />
     <span className='text-xs text-gray-600 dark:text-gray-300 mt-1'>{toyData.name}</span>
   </button>

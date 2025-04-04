@@ -1,10 +1,22 @@
-const ATTRIBUTES = ['Normal', 'Fire', 'Water', 'Earth', 'Wind', 'Light', 'Dark'];
-type Attribute = (typeof ATTRIBUTES)[number];
+type Attribute =
+  | 'Normal'
+  | 'Fire'
+  | 'Water'
+  | 'Earth'
+  | 'Wind'
+  | 'Light'
+  | 'Dark'
+  | 'Plant'
+  | 'Electric'
+  | 'Ice'
+  | 'Ground'
+  | 'Poison';
+type Grade = 'Common' | 'Rare' | 'Epic' | 'Legendary' | 'Mythic';
 
 export interface ToyZData {
   name: string;
-  grade: string;
-  attribute?: Attribute;
+  grade: Grade;
+  attribute: Attribute;
   season?: number;
 }
 interface ToyZ {

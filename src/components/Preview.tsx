@@ -107,7 +107,7 @@ export default function HexagonPreview({
     const groupIdAttr: string = text !== '' ? `data-item-id="${text}"` : '';
 
     return `<g class="hexagon-item" ${groupIdAttr}>${basePolygon}${imageElement || textElement}${borders}</g>`;
-  }, [vertices, colors, size, text, lineThickness]);
+  }, [vertices, colors, size, text, image, lineThickness]);
 
   return <svg viewBox={`0 0 ${size * 2} ${size * 2}`} dangerouslySetInnerHTML={{ __html: hexagonSVG }} />;
 }
