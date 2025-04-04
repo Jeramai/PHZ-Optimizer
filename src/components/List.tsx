@@ -12,6 +12,8 @@ interface HexagonItemProps {
   item: Item;
   onRemoveItem: (id: string) => void;
   disabled: boolean;
+  isEditing: boolean | string;
+  onClick: () => void;
 }
 
 interface HexagonListProps {
@@ -19,6 +21,8 @@ interface HexagonListProps {
   onRemoveItem: (id: string) => void;
   selectedBuffTypes: Set<BuffType>;
   handleBuffTypeChange: (buffType: BuffType) => void;
+  isEditing: boolean | string;
+  setIsEditing: (id: string) => void;
 }
 
 const CONTAINER_CLASSES =
@@ -36,56 +40,61 @@ const RemoveButton = React.memo(({ id, onRemoveItem }: RemoveButtonProps) => (
 ));
 RemoveButton.displayName = 'RemoveButton';
 
-const HexagonItem = React.memo(({ item, onRemoveItem, disabled = false }: HexagonItemProps) => (
+const HexagonItem = React.memo(({ item, onRemoveItem, disabled, isEditing, onClick }: HexagonItemProps) => (
   <div className={`item-preview-container relative ${disabled ? 'grayscale-75' : ''}`}>
-    <HexagonPreview colors={item.colors} text={item.name || item.id} image={item.image} />
-    <RemoveButton id={item.id} onRemoveItem={onRemoveItem} />
+    <HexagonPreview colors={item.colors} text={item.name || item.id} image={item.image} onClick={onClick} />
+    {isEditing === item.id ? null : <RemoveButton id={item.id} onRemoveItem={onRemoveItem} />}
   </div>
 ));
 HexagonItem.displayName = 'HexagonItem';
 
-const HexagonList = React.memo(({ items, onRemoveItem, selectedBuffTypes, handleBuffTypeChange }: HexagonListProps) => {
-  const itemCount = items.length;
+const HexagonList = React.memo(
+  ({ items, onRemoveItem, selectedBuffTypes, handleBuffTypeChange, isEditing, setIsEditing }: HexagonListProps) => {
+    const itemCount = items.length;
 
-  return (
-    <div id='item-list' className={CONTAINER_CLASSES}>
-      <h2 className='text-lg sm:text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200'>Item List ({itemCount} items)</h2>
+    return (
+      <div id='item-list' className={CONTAINER_CLASSES}>
+        <h2 className='text-lg sm:text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200'>Item List ({itemCount} items)</h2>
 
-      <p id='list-message' className='text-sm text-gray-600 dark:text-gray-300 mb-4 min-h-[20px]'>
-        Add items using the creator above.{' '}
-        {itemCount >= 13 ? 'Adding more items will take longer to find the optimal layout.' : null}
-      </p>
+        <p id='list-message' className='text-sm text-gray-600 dark:text-gray-300 mb-4 min-h-[20px]'>
+          Add items using the creator above.{' '}
+          {itemCount >= 13 ? 'Adding more items will take longer to find the optimal layout.' : null}
+        </p>
 
-      <div className='flex flex-wrap justify-between gap-2 p-3 border border-gray-300 rounded-md bg-white dark:border-gray-700 dark:bg-gray-700 shadow-sm mb-8'>
-        {Object.entries(BuffType).map((value) => (
-          <label
-            key={value[0]}
-            className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 hover:dark:bg-gray-800 px-2 py-1 rounded'
-          >
-            <input
-              type='checkbox'
-              name={value[0]}
-              checked={selectedBuffTypes.has(value[1])}
-              onChange={() => handleBuffTypeChange(value[1])}
-              className='w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500 focus:ring-2'
+        <div className='flex flex-wrap justify-between gap-2 p-3 border border-gray-300 rounded-md bg-white dark:border-gray-700 dark:bg-gray-700 shadow-sm mb-8'>
+          {Object.entries(BuffType).map((value) => (
+            <label
+              key={value[0]}
+              className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 hover:dark:bg-gray-800 px-2 py-1 rounded'
+            >
+              <input
+                type='checkbox'
+                name={value[0]}
+                checked={selectedBuffTypes.has(value[1])}
+                onChange={() => handleBuffTypeChange(value[1])}
+                className='w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500 focus:ring-2'
+              />
+              <span className='text-sm text-gray-700 dark:text-gray-200 select-none'>{value[1]}</span>
+            </label>
+          ))}
+        </div>
+
+        <div className={GRID_CLASSES}>
+          {items.map((item) => (
+            <HexagonItem
+              key={item.id}
+              item={item}
+              onRemoveItem={onRemoveItem}
+              disabled={selectedBuffTypes.size > 0 && !selectedBuffTypes.has(item.buffType)}
+              isEditing={isEditing}
+              onClick={() => setIsEditing(item.id)}
             />
-            <span className='text-sm text-gray-700 dark:text-gray-200 select-none'>{value[1]}</span>
-          </label>
-        ))}
+          ))}
+        </div>
       </div>
-      <div className={GRID_CLASSES}>
-        {items.map((item) => (
-          <HexagonItem
-            key={item.id}
-            item={item}
-            onRemoveItem={onRemoveItem}
-            disabled={selectedBuffTypes.size > 0 && !selectedBuffTypes.has(item.buffType)}
-          />
-        ))}
-      </div>
-    </div>
-  );
-});
+    );
+  }
+);
 HexagonList.displayName = 'HexagonList';
 
 export default HexagonList;

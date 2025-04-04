@@ -1,12 +1,15 @@
 import { BORDER_COLORS, BuffType, DEFAULT_COLORS } from '@/lib/enums';
-import { memo, useCallback, useState } from 'react';
+import { Item } from '@/lib/types';
+import { memo, useCallback, useEffect, useState } from 'react';
 import ToyZSelectModal from './modals/Select';
 import HexagonPreview from './Preview';
 
 type ColorOption = keyof typeof BORDER_COLORS;
 
 interface HexagonCreatorProps {
+  selectedItem: Item | undefined;
   onAddItem: (name: string, image: string, buffType: BuffType, colors: ColorOption[]) => void;
+  setIsEditing: (b: boolean) => void;
 }
 interface SelectBorderColorProps {
   color: ColorOption;
@@ -14,7 +17,7 @@ interface SelectBorderColorProps {
   handleColorChange: (index: number, color: ColorOption) => void;
 }
 
-export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorProps>) {
+export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }: Readonly<HexagonCreatorProps>) {
   const [name, setName] = useState<string>('');
   const [image, setImage] = useState<string>('');
   const [buffType, setBuffType] = useState<BuffType>(BuffType.BASIC);
@@ -38,10 +41,26 @@ export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorPro
     setImage('');
   }, [onAddItem, name, image, buffType, selectedColors]);
 
+  useEffect(() => {
+    if (selectedItem) {
+      setName(selectedItem.name);
+      setImage(selectedItem.image ?? '');
+      setBuffType(selectedItem.buffType);
+      setSelectedColors(selectedItem.colors);
+    } else {
+      setName('');
+      setImage('');
+      setBuffType(BuffType.BASIC);
+      setSelectedColors([...DEFAULT_COLORS]);
+    }
+  }, [selectedItem]);
+
   return (
     <>
       <div className='p-4 sm:p-5 border border-gray-200 rounded-lg bg-gray-50 shadow-sm dark:border-gray-900 dark:bg-gray-800'>
-        <h2 className='text-lg sm:text-xl font-semibold mb-5 text-gray-700 dark:text-gray-300'>Create New Item</h2>
+        <h2 className='text-lg sm:text-xl font-semibold mb-5 text-gray-700 dark:text-gray-300'>
+          {selectedItem ? `Editing: "${selectedItem.name}"` : 'Create New Item'}
+        </h2>
         <div className='flex flex-col mb-5'>
           <span className='block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1'>Select ToyZ</span>
           <div className='relative w-full flex gap-3 items-center'>
@@ -106,12 +125,21 @@ export default function HexagonCreator({ onAddItem }: Readonly<HexagonCreatorPro
           </div>
         </div>
 
-        <div className='text-center mt-6'>
+        <div className='flex gap-3 justify-center mt-6'>
+          {selectedItem ? (
+            <button
+              onClick={() => setIsEditing(false)}
+              className='border border-red-600 dark:border-red-400 text-red-600 dark:text-red-400 font-medium px-6 py-2 rounded-lg 
+                        hover:bg-red-600 hover:dark:bg-red-400 hover:text-white cursor-pointer transition-colors'
+            >
+              Cancel
+            </button>
+          ) : null}
           <button
             onClick={handleAddItem}
             className='bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 cursor-pointer'
           >
-            Add Item to List
+            {selectedItem ? 'Update ToyZ' : 'Add Item to List'}
           </button>
         </div>
       </div>

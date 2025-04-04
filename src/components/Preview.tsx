@@ -15,6 +15,7 @@ interface HexagonPreviewProps {
   text?: string;
   image?: string;
   lineThickness?: number;
+  onClick?: () => void;
 }
 
 export default function HexagonPreview({
@@ -22,7 +23,8 @@ export default function HexagonPreview({
   size = DEFAULT_SIZE,
   text = '',
   image = '',
-  lineThickness = 4
+  lineThickness = 4,
+  onClick = undefined
 }: Readonly<HexagonPreviewProps>) {
   // Memoize vertices calculation
   const vertices: Point[] = useMemo(() => {
@@ -109,5 +111,12 @@ export default function HexagonPreview({
     return `<g class="hexagon-item" ${groupIdAttr}>${basePolygon}${imageElement || textElement}${borders}</g>`;
   }, [vertices, colors, size, text, image, lineThickness]);
 
-  return <svg viewBox={`0 0 ${size * 2} ${size * 2}`} dangerouslySetInnerHTML={{ __html: hexagonSVG }} />;
+  return (
+    <svg
+      viewBox={`0 0 ${size * 2} ${size * 2}`}
+      dangerouslySetInnerHTML={{ __html: hexagonSVG }}
+      onClick={onClick}
+      className={onClick ? 'cursor-pointer' : ''}
+    />
+  );
 }

@@ -1,6 +1,6 @@
 import { TOYZ, ToyZData } from '@/lib/toyz';
 import Image from 'next/image';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 interface ToyZSelectModalProps {
   show: boolean;
@@ -38,13 +38,14 @@ const ToyButton = memo(({ toyID, toyData, isSelected, onSelect }: ToyButtonProps
 ToyButton.displayName = 'ToyButton';
 
 const ToyZSelectModal = ({ show, onHide, image, setImage, setName }: ToyZSelectModalProps) => {
+  const [search, setSearch] = useState<string>('');
+
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) onHide();
     },
     [onHide]
   );
-
   const handleToySelect = useCallback(
     (id: string, name: string) => {
       setImage(id);
@@ -53,6 +54,16 @@ const ToyZSelectModal = ({ show, onHide, image, setImage, setName }: ToyZSelectM
     },
     [setImage, setName, onHide]
   );
+
+  const lowerSearch = useMemo(() => search.toLowerCase(), [search]);
+  const filteredToys = useMemo(() => {
+    return Object.entries(TOYZ).filter((data) => data[1].name.toLowerCase().includes(lowerSearch));
+  }, [lowerSearch]);
+
+  // On hide, clear search
+  useEffect(() => {
+    if (!show) setSearch('');
+  }, [show]);
 
   if (!show) return null;
   return (
@@ -85,7 +96,7 @@ const ToyZSelectModal = ({ show, onHide, image, setImage, setName }: ToyZSelectM
         {/* Scrollable Content */}
         <div className='flex-1 overflow-auto px-6 my-3'>
           <div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4'>
-            {Object.entries(TOYZ).map(([toyID, toyData]) => (
+            {filteredToys.map(([toyID, toyData]) => (
               <ToyButton key={toyID} toyID={toyID} toyData={toyData} isSelected={image === toyID} onSelect={handleToySelect} />
             ))}
           </div>
@@ -93,7 +104,19 @@ const ToyZSelectModal = ({ show, onHide, image, setImage, setName }: ToyZSelectM
 
         {/* Fixed Footer */}
         <div className='px-6 py-4 border-t border-gray-300 dark:border-gray-700'>
-          <div className='flex justify-end'>
+          <div className='flex justify-between'>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder='Search ToyZ...'
+              type='search'
+              className='flex-1 mr-4 px-4 py-2 border border-gray-300 dark:border-gray-600 
+                rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                placeholder-gray-500 dark:placeholder-gray-400
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                dark:focus:ring-blue-400 dark:focus:border-blue-400'
+            />
+
             <button
               onClick={onHide}
               className='px-4 py-2 text-sm font-medium cursor-pointer text-gray-700 bg-gray-200 

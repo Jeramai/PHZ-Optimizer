@@ -14,6 +14,9 @@ const LOCAL_STORAGE_KEY = 'phzOptimizerItems';
 export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
 
+  const [isEditing, setIsEditing] = useState<boolean | string>(false);
+  const selectedItem = items.find((item) => item.id === isEditing) || undefined;
+
   const generateUniqueId = useCallback(() => {
     return crypto.randomUUID();
   }, []);
@@ -29,7 +32,6 @@ export default function Home() {
 
   // Create the debounced version using useMemo
   const debouncedSaveToStorage = useMemo(() => debounce(saveToStorage, 1000), [saveToStorage]);
-
   useEffect(() => {
     try {
       const storedItems = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -56,20 +58,41 @@ export default function Home() {
 
   const handleAddItem = useCallback(
     (name: string, image: string, buffType: BuffType, colors: ColorOption[]) => {
-      setItems((prevItems) => [
-        ...prevItems,
-        {
-          id: generateUniqueId(),
-          name,
-          image,
-          buffType,
-          colors
-        }
-      ]);
-    },
-    [generateUniqueId]
-  );
+      //  Update the item
+      if (isEditing) {
+        setItems((prevItems) => {
+          const itemIndex = prevItems.findIndex((item) => item.id === isEditing);
+          if (itemIndex === -1) return prevItems;
 
+          const updatedItems = [...prevItems];
+          updatedItems[itemIndex] = {
+            ...prevItems[itemIndex],
+            name,
+            image,
+            buffType,
+            colors
+          };
+
+          return updatedItems;
+        });
+        setIsEditing(false);
+      }
+      // Add the item
+      else {
+        setItems((prevItems) => [
+          ...prevItems,
+          {
+            id: generateUniqueId(),
+            name,
+            image,
+            buffType,
+            colors
+          }
+        ]);
+      }
+    },
+    [isEditing, generateUniqueId]
+  );
   const handleRemoveItem = useCallback((id: string) => {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id));
   }, []);
@@ -133,12 +156,14 @@ export default function Home() {
           </div>
           <div className='flex flex-col lg:flex-row gap-6'>
             <div className='flex flex-col gap-6 lg:w-1/2'>
-              <HexagonCreator onAddItem={handleAddItem} />
+              <HexagonCreator onAddItem={handleAddItem} selectedItem={selectedItem} setIsEditing={setIsEditing} />
               <HexagonList
                 items={memoizedItems}
                 onRemoveItem={handleRemoveItem}
                 selectedBuffTypes={selectedBuffTypes}
                 handleBuffTypeChange={handleBuffTypeChange}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
               />
             </div>
             <div className='lg:w-1/2'>
