@@ -57,7 +57,7 @@ export default function Home() {
   }, [items, debouncedSaveToStorage]);
 
   const handleAddItem = useCallback(
-    (name: string, image: string, buffType: Buff, colors: ColorOption[]) => {
+    (image: string, colors: ColorOption[]) => {
       //  Update the item
       if (isEditing) {
         setItems((prevItems) => {
@@ -67,9 +67,7 @@ export default function Home() {
           const updatedItems = [...prevItems];
           updatedItems[itemIndex] = {
             ...prevItems[itemIndex],
-            name,
             image,
-            buffType,
             colors
           };
 
@@ -83,9 +81,7 @@ export default function Home() {
           ...prevItems,
           {
             id: generateUniqueId(),
-            name,
             image,
-            buffType,
             colors
           }
         ]);
@@ -109,12 +105,13 @@ export default function Home() {
       return newSet;
     });
   };
+
   const memoizedItems = useMemo(() => items, [items]);
   const memoizedItemsFiltered = useMemo(() => {
     const filteredItems = items.filter((item) => {
       // If no buff types are selected, include all items
       if (selectedBuffTypes.size === 0) return true;
-      return selectedBuffTypes.has(item.buffType);
+      return selectedBuffTypes.has(item.buff ?? 'Basic');
     });
 
     // If we have less than 7 items, add empty placeholder items
@@ -125,6 +122,7 @@ export default function Home() {
           (_, index) =>
             ({
               id: `empty-${index}`,
+              image: '',
               name: ` `,
               buffType: 'Basic',
               colors: ['Black', 'Black', 'Black', 'Black', 'Black', 'Black', 'Black']

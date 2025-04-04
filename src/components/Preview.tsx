@@ -1,3 +1,4 @@
+import { Grade } from '@/lib/toyz';
 import { ColorOption } from '@/lib/types';
 import { useMemo } from 'react';
 
@@ -14,6 +15,7 @@ interface HexagonPreviewProps {
   size?: number;
   text?: string;
   image?: string;
+  grade?: Grade;
   lineThickness?: number;
   onClick?: () => void;
 }
@@ -23,6 +25,7 @@ export default function HexagonPreview({
   size = DEFAULT_SIZE,
   text = '',
   image = '',
+  grade = 'Common',
   lineThickness = 4,
   onClick = undefined
 }: Readonly<HexagonPreviewProps>) {
@@ -67,12 +70,35 @@ export default function HexagonPreview({
         font-weight="bold">${truncatedText}</text>
     </g>`;
   };
+  const backgroundColor = useMemo(() => {
+    let returnValue = 'fill-[#9ca3af]/50';
+
+    switch (grade) {
+      case 'Rare':
+        returnValue = 'fill-[#16a34a]/50';
+        break;
+      case 'Epic':
+        returnValue = 'fill-[#9333ea]/50';
+        break;
+      case 'Legendary':
+        returnValue = 'fill-[#d97706]/50';
+        break;
+      case 'Mythic':
+        returnValue = 'fill-[#e11d48]/50';
+        break;
+
+      default:
+        break;
+    }
+
+    return returnValue;
+  }, [grade]);
 
   // Memoize the SVG generation
   const hexagonSVG: string = useMemo(() => {
     const points: string = vertices.map((p: Point): string => `${p.x},${p.y}`).join(' ');
 
-    const basePolygon: string = `<polygon points="${points}" class="fill-gray-200 dark:fill-gray-800"  stroke-width="0.5"/>`;
+    const basePolygon: string = `<polygon points="${points}" class="${backgroundColor}"  stroke-width="0.5"/>`;
 
     // Create borders in a single iteration
     const borders: string = vertices

@@ -1,4 +1,4 @@
-type Attribute =
+export type Attribute =
   | 'Normal'
   | 'Fire'
   | 'Water'
@@ -11,7 +11,7 @@ type Attribute =
   | 'Ice'
   | 'Ground'
   | 'Poison';
-type Grade = 'Common' | 'Rare' | 'Epic' | 'Legendary' | 'Mythic';
+export type Grade = 'Common' | 'Rare' | 'Epic' | 'Legendary' | 'Mythic';
 export type Buff = 'Atk Spd' | 'Melee' | 'Ranged' | 'Basic' | 'Boss' | 'Skill' | 'All';
 
 export interface ToyZData {

@@ -1,5 +1,5 @@
 import { BORDER_COLORS } from './enums';
-import { Buff } from './toyz';
+import { Buff, Grade } from './toyz';
 
 export interface BorderColors {
   [key: string]: string;
@@ -8,10 +8,11 @@ export interface BorderColors {
 export type ColorOption = keyof typeof BORDER_COLORS;
 export interface Item {
   id: string;
-  name: string;
-  buffType: Buff;
+  image: string;
   colors: ColorOption[];
-  image?: string;
+  name?: string;
+  buff?: Buff;
+  grade?: Grade;
 }
 export interface LayoutResult {
   message: string;

@@ -1,5 +1,5 @@
 import { BUFFS } from '@/lib/enums';
-import { Buff } from '@/lib/toyz';
+import { Buff, TOYZ } from '@/lib/toyz';
 import { Item } from '@/lib/types';
 import React from 'react';
 import HexagonPreview from './Preview';
@@ -43,7 +43,7 @@ RemoveButton.displayName = 'RemoveButton';
 
 const HexagonItem = React.memo(({ item, onRemoveItem, disabled, isEditing, onClick }: HexagonItemProps) => (
   <div className={`item-preview-container relative ${disabled ? 'grayscale-75' : ''}`}>
-    <HexagonPreview colors={item.colors} text={item.name || item.id} image={item.image} onClick={onClick} />
+    <HexagonPreview colors={item.colors} text={item.name || item.id} image={item.image} grade={item.grade} onClick={onClick} />
     {isEditing === item.id ? null : <RemoveButton id={item.id} onRemoveItem={onRemoveItem} />}
   </div>
 ));
@@ -81,16 +81,28 @@ const HexagonList = React.memo(
         </div>
 
         <div className={GRID_CLASSES}>
-          {items.map((item) => (
-            <HexagonItem
-              key={item.id}
-              item={item}
-              onRemoveItem={onRemoveItem}
-              disabled={selectedBuffTypes.size > 0 && !selectedBuffTypes.has(item.buffType)}
-              isEditing={isEditing}
-              onClick={() => setIsEditing(item.id)}
-            />
-          ))}
+          {items.map((_item) => {
+            const toyZItem = TOYZ?.[_item.image];
+            const item = {
+              id: _item.id,
+              colors: _item.colors,
+              image: _item.image,
+              name: toyZItem.name,
+              buff: toyZItem.buff,
+              grade: toyZItem.grade
+            };
+
+            return (
+              <HexagonItem
+                key={item.id}
+                item={item}
+                onRemoveItem={onRemoveItem}
+                disabled={selectedBuffTypes.size > 0 && !selectedBuffTypes.has(item.buff)}
+                isEditing={isEditing}
+                onClick={() => setIsEditing(item.id)}
+              />
+            );
+          })}
         </div>
       </div>
     );

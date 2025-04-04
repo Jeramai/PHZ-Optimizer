@@ -1,7 +1,7 @@
 import { BORDER_COLORS, DEFAULT_COLORS } from '@/lib/enums';
-import { Buff } from '@/lib/toyz';
+import { TOYZ } from '@/lib/toyz';
 import { Item } from '@/lib/types';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import ToyZSelectModal from './modals/Select';
 import HexagonPreview from './Preview';
 
@@ -9,7 +9,7 @@ type ColorOption = keyof typeof BORDER_COLORS;
 
 interface HexagonCreatorProps {
   selectedItem: Item | undefined;
-  onAddItem: (name: string, image: string, buffType: Buff, colors: ColorOption[]) => void;
+  onAddItem: (image: string, colors: ColorOption[]) => void;
   setIsEditing: (b: boolean) => void;
 }
 interface SelectBorderColorProps {
@@ -19,11 +19,11 @@ interface SelectBorderColorProps {
 }
 
 export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }: Readonly<HexagonCreatorProps>) {
-  const [name, setName] = useState<string>('');
   const [image, setImage] = useState<string>('');
-  const [buffType, setBuffType] = useState<Buff>('Basic');
   const [selectedColors, setSelectedColors] = useState<ColorOption[]>([...DEFAULT_COLORS]);
   const [toyZSelectModal, setToyZSelectModal] = useState<boolean>(false);
+
+  const { name, grade } = useMemo(() => TOYZ[image] ?? { name: '', grade: 'Common' }, [image]);
 
   const handleColorChange = useCallback((index: number, color: ColorOption) => {
     setSelectedColors((prev) => {
@@ -35,23 +35,18 @@ export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }
 
   const handleAddItem = useCallback(() => {
     // Spread to create a new mutable array
-    onAddItem(name, image, buffType, [...selectedColors]);
+    onAddItem(image, [...selectedColors]);
 
     // Reset after
-    setName('');
     setImage('');
-  }, [onAddItem, name, image, buffType, selectedColors]);
+  }, [onAddItem, image, selectedColors]);
 
   useEffect(() => {
     if (selectedItem) {
-      setName(selectedItem.name);
       setImage(selectedItem.image ?? '');
-      setBuffType(selectedItem.buffType);
       setSelectedColors(selectedItem.colors);
     } else {
-      setName('');
       setImage('');
-      setBuffType('Basic');
       setSelectedColors([...DEFAULT_COLORS]);
     }
   }, [selectedItem]);
@@ -85,7 +80,12 @@ export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }
           <div className='flex flex-col items-center mt-4 md:mt-0 flex-shrink-0 w-full md:w-[100px]'>
             <span className='block text-sm font-medium text-gray-500 mb-2'>Preview</span>
             <div className='aspect-square h-[100px]'>
-              <HexagonPreview colors={selectedColors.map((color) => BORDER_COLORS[color])} text={name || 'ToyZ'} image={image} />
+              <HexagonPreview
+                colors={selectedColors.map((color) => BORDER_COLORS[color])}
+                text={name || 'ToyZ'}
+                image={image}
+                grade={grade}
+              />
             </div>
           </div>
         </div>
@@ -101,22 +101,16 @@ export default function HexagonCreator({ selectedItem, onAddItem, setIsEditing }
             </button>
           ) : null}
           <button
+            disabled={!image}
             onClick={handleAddItem}
-            className='bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 cursor-pointer'
+            className='bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 cursor-pointer disabled:grayscale-75'
           >
             {selectedItem ? 'Update ToyZ' : 'Add Item to List'}
           </button>
         </div>
       </div>
 
-      <ToyZSelectModal
-        show={toyZSelectModal}
-        onHide={() => setToyZSelectModal(false)}
-        image={image}
-        setImage={setImage}
-        setName={setName}
-        setBuff={setBuffType}
-      />
+      <ToyZSelectModal show={toyZSelectModal} onHide={() => setToyZSelectModal(false)} image={image} setImage={setImage} />
     </>
   );
 }

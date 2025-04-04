@@ -1,4 +1,5 @@
 import { ADJACENCY } from '@/lib/enums';
+import { TOYZ } from '@/lib/toyz';
 import { Item } from '@/lib/types';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -45,6 +46,31 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
 
   const [currentArrangement, setCurrentArrangement] = useState<number>(0);
   const [arrangements, setArrangements] = useState<Item[][]>([]);
+
+  const getBackgroundColor = useCallback((image: string) => {
+    const grade = TOYZ[image]?.grade;
+    let returnValue = 'fill-[#9ca3af]/50';
+
+    switch (grade) {
+      case 'Rare':
+        returnValue = 'fill-[#16a34a]/50';
+        break;
+      case 'Epic':
+        returnValue = 'fill-[#9333ea]/50';
+        break;
+      case 'Legendary':
+        returnValue = 'fill-[#d97706]/50';
+        break;
+      case 'Mythic':
+        returnValue = 'fill-[#e11d48]/50';
+        break;
+
+      default:
+        break;
+    }
+
+    return returnValue;
+  }, []);
 
   // Memoized border midpoint calculation
   const memoizedCalculateBorderMidpoint = useMemo(() => {
@@ -124,7 +150,7 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
         svg += ' data-item-id="' + displayId + '"';
       }
       svg += '>';
-      svg += '<polygon points="' + points + '" class="fill-gray-200 dark:fill-gray-800"  stroke="#aaa" stroke-width="0.5"/>';
+      svg += `<polygon points="${points}" class="${getBackgroundColor(image ?? '')}"  stroke="#aaa" stroke-width="0.5"/>`;
 
       // Add image
       if (image) {
