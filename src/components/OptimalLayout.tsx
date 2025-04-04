@@ -2,6 +2,7 @@ import { ADJACENCY } from '@/lib/enums';
 import { TOYZ } from '@/lib/toyz';
 import { Item } from '@/lib/types';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import LayoutStats from './LayoutStats';
 
 interface HexagonOptimalLayoutProps {
   itemList: Array<Item>;
@@ -325,6 +326,8 @@ const HexagonOptimalLayout = React.memo(({ itemList, hasItems = false }: Readonl
             </button>
           </div>
         ) : null}
+
+        {hasItems ? <LayoutStats data={arrangements[currentArrangement]} /> : null}
 
         {hasItems ? (
           <div className='text-center'>
