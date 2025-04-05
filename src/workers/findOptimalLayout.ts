@@ -160,7 +160,14 @@ async function findOptimalLayout(itemList: Item[], forcedItem?: Item): Promise<L
             overallBestScore = currentScore;
             bestArrangements = [[...fullArrangement]];
           } else if (currentScore === overallBestScore) {
-            bestArrangements.push([...fullArrangement]);
+            const isDuplicate = bestArrangements.some((arrangement) =>
+              arrangement.every((item, index) => {
+                const currentItem = fullArrangement[index];
+                return item.id === currentItem.id || (item.id.startsWith('empty-') && currentItem.id.startsWith('empty-'));
+              })
+            );
+
+            if (!isDuplicate) bestArrangements.push([...fullArrangement]);
           }
 
           // Report progress
